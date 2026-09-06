@@ -1,0 +1,7 @@
+services:
+type: web
+name: cafe-lumiere-backend
+runtime: node
+rootDir: backennd
+buildCommand: npm install
+startCommand: npm strt
