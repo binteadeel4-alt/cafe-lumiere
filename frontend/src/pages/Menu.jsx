@@ -15,7 +15,7 @@ function Menu() {
         const fetchMenu = async () => {
             try {
                 const response = await axios.get(
-                    "http://localhost:5000/api/menu"
+                    "https://cafe-lumiere-production.up.railway.app/api/menu"
                 );
 
                 setMenuItems(response.data.items);

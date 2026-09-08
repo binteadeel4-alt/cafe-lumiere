@@ -16,7 +16,7 @@ function AdminReviews() {
             const token = localStorage.getItem("adminToken");
 
             const response = await axios.get(
-                "http://localhost:5000/api/reviews/admin/all",
+                "https://cafe-lumiere-production.up.railway.app/api/reviews/admin/all",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -55,7 +55,7 @@ function AdminReviews() {
             const token = localStorage.getItem("adminToken");
 
             await axios.put(
-                `http://localhost:5000/api/reviews/${id}/approve`,
+                `https://cafe-lumiere-production.up.railway.app/api/reviews/${id}/approve`,
                 {},
                 {
                     headers: {
@@ -108,7 +108,7 @@ function AdminReviews() {
             const token = localStorage.getItem("adminToken");
 
             await axios.delete(
-                `http://localhost:5000/api/reviews/${id}`,
+                `https://cafe-lumiere-production.up.railway.app/api/reviews/${id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`

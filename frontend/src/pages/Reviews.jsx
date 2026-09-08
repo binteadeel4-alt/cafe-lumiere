@@ -23,7 +23,7 @@ function Reviews() {
         try {
 
             const response = await axios.get(
-                "http://localhost:5000/api/reviews"
+                "https://cafe-lumiere-production.up.railway.app/api/reviews"
             );
 
             setReviews(response.data.reviews || []);
@@ -66,7 +66,7 @@ function Reviews() {
         try {
 
             const response = await axios.post(
-                "http://localhost:5000/api/reviews",
+                "https://cafe-lumiere-production.up.railway.app/api/reviews",
                 {
                     customer_name: formData.customer_name,
                     rating: Number(formData.rating),

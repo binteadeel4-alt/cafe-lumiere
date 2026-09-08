@@ -27,7 +27,7 @@ function Dashboard() {
                 const token = localStorage.getItem("adminToken");
 
                 const response = await axios.get(
-                    "http://localhost:5000/api/dashboard/stats",
+                    "https://cafe-lumiere-production.up.railway.app/api/dashboard/stats",
                     {
                         headers: {
                             Authorization: `Bearer ${token}`

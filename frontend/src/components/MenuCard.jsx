@@ -4,7 +4,7 @@ function MenuCard({ item, onAddToCart }) {
             <div className="card menu-card h-100 shadow-sm border-0">
 
                 <img
-                    src={`http://localhost:5000${item.image}`}
+                    src={`https://cafe-lumiere-production.up.railway.app${item.image}`}
                     className="card-img-top menu-card-image"
                     alt={item.name}
                 />

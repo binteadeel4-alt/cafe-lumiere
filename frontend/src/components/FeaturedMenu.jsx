@@ -9,7 +9,7 @@ function FeaturedMenu() {
         const fetchFeaturedMenu = async () => {
             try {
                 const response = await axios.get(
-                    "http://localhost:5000/api/menu"
+                    "https://cafe-lumiere-production.up.railway.app/api/menu"
                 );
 
                 setItems(response.data.items.slice(0, 6));
@@ -48,7 +48,7 @@ function FeaturedMenu() {
                             <div className="featured-card">
 
                                 <img
-                                    src={`http://localhost:5000${item.image}`}
+                                    src={`https://cafe-lumiere-production.up.railway.app${item.image}`}
                                     alt={item.name}
                                     className="featured-card-image"
                                 />

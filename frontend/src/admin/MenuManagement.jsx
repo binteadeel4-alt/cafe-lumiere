@@ -25,7 +25,7 @@ function MenuManagement() {
             const token = localStorage.getItem("adminToken");
 
             const response = await axios.get(
-                "http://localhost:5000/api/menu/admin/all",
+                "https://cafe-lumiere-production.up.railway.app/api/menu/admin/all",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -44,7 +44,7 @@ function MenuManagement() {
     const fetchCategories = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:5000/api/categories"
+                "https://cafe-lumiere-production.up.railway.app/api/categories"
             );
 
             setCategories(response.data.categories);
@@ -87,7 +87,7 @@ function MenuManagement() {
             const token = localStorage.getItem("adminToken");
 
             await axios.post(
-                "http://localhost:5000/api/menu",
+                "https://cafe-lumiere-production.up.railway.app/api/menu",
                 formData,
                 {
                     headers: {
@@ -143,7 +143,7 @@ function MenuManagement() {
             const token = localStorage.getItem("adminToken");
 
             await axios.put(
-                `http://localhost:5000/api/menu/${editingItem.id}`,
+                `https://cafe-lumiere-production.up.railway.app/api/menu/${editingItem.id}`,
                 {
                     ...formData,
                     is_available: editingItem.is_available
@@ -196,7 +196,7 @@ function MenuManagement() {
             const token = localStorage.getItem("adminToken");
 
             await axios.delete(
-                `http://localhost:5000/api/menu/${id}`,
+                `https://cafe-lumiere-production.up.railway.app/api/menu/${id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -222,7 +222,7 @@ function MenuManagement() {
             const token = localStorage.getItem("adminToken");
 
             await axios.put(
-                `http://localhost:5000/api/menu/${item.id}`,
+                `https://cafe-lumiere-production.up.railway.app/api/menu/${item.id}`,
                 {
                     category_id: item.category_id,
                     name: item.name,
@@ -527,7 +527,7 @@ function MenuManagement() {
                                                     {item.image ? (
 
                                                         <img
-                                                            src={`http://localhost:5000${item.image}`}
+                                                            src={`https://cafe-lumiere-production.up.railway.app${item.image}`}
                                                             alt={item.name}
                                                             className="admin-menu-image"
                                                         />

@@ -17,7 +17,7 @@ function Gallery() {
             try {
 
                 const response = await axios.get(
-                    "http://localhost:5000/api/gallery"
+                    "https://cafe-lumiere-production.up.railway.app/api/gallery"
                 );
 
                 setItems(response.data.items || []);
@@ -161,7 +161,7 @@ function Gallery() {
                                             {item.image && (
 
                                                 <img
-                                                    src={`http://localhost:5000${item.image}`}
+                                                    src={`https://cafe-lumiere-production.up.railway.app${item.image}`}
                                                     alt={item.title}
                                                     className="w-100"
                                                     style={{
@@ -179,7 +179,7 @@ function Gallery() {
                                                 item.video && (
 
                                                     <video
-                                                        src={`http://localhost:5000${item.video}`}
+                                                        src={`https://cafe-lumiere-production.up.railway.app${item.video}`}
                                                         className="w-100"
                                                         style={{
                                                             height: "320px",

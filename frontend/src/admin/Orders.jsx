@@ -12,7 +12,7 @@ function Orders() {
             const token = localStorage.getItem("adminToken");
 
             const response = await axios.get(
-                "http://localhost:5000/api/orders",
+                "https://cafe-lumiere-production.up.railway.app/api/orders",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -39,7 +39,7 @@ function Orders() {
             const token = localStorage.getItem("adminToken");
 
             await axios.put(
-                `http://localhost:5000/api/orders/${orderId}/status`,
+                `https://cafe-lumiere-production.up.railway.app/api/orders/${orderId}/status`,
                 { status },
                 {
                     headers: {

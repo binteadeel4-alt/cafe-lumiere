@@ -30,7 +30,7 @@ function Contact() {
 
         try {
             const response = await axios.post(
-                "http://localhost:5000/api/messages",
+                "https://cafe-lumiere-production.up.railway.app/api/messages",
                 formData
             );
 

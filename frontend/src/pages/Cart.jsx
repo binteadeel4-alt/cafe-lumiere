@@ -82,7 +82,7 @@ function Cart() {
                                         <div className="col-3 col-md-2">
 
                                             <img
-                                                src={`http://localhost:5000${item.image}`}
+                                                src={`https://cafe-lumiere-production.up.railway.app${item.image}`}
                                                 alt={item.name}
                                                 className="img-fluid rounded"
                                             />

@@ -18,7 +18,7 @@ function Login() {
 
         try {
             const response = await axios.post(
-                "http://localhost:5000/api/auth/login",
+                "https://cafe-lumiere-production.up.railway.app/api/auth/login",
                 {
                     email,
                     password
@@ -78,7 +78,7 @@ function Login() {
                         <input
                             type="email"
                             className="form-control"
-                            placeholder="admin@cafelumiere.com"
+                            placeholder="Enter email"
                             value={email}
                             onChange={(e) =>
                                 setEmail(e.target.value)

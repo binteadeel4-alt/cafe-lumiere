@@ -36,7 +36,7 @@ function GalleryManagement() {
             const token = getToken();
 
             const response = await axios.get(
-                "http://localhost:5000/api/gallery/admin/all",
+                "https://cafe-lumiere-production.up.railway.app/api/gallery/admin/all",
                 {
                     headers: {
                         Authorization: `Bearer ${token} `
@@ -145,7 +145,7 @@ function GalleryManagement() {
 
                 // Keep your existing update system
                 await axios.put(
-                    `http://localhost:5000/api/gallery/${editingId}`,
+                    `https://cafe-lumiere-production.up.railway.app/api/gallery/${editingId}`,
                     {
                         title: formData.title,
                         description: formData.description
@@ -164,7 +164,7 @@ function GalleryManagement() {
             } else {
 
                 await axios.post(
-                    "http://localhost:5000/api/gallery",
+                    "https://cafe-lumiere-production.up.railway.app/api/gallery",
                     data,
                     {
                         headers: {
@@ -243,7 +243,7 @@ function GalleryManagement() {
             const token = getToken();
 
             await axios.delete(
-                `http://localhost:5000/api/gallery/${id}`,
+                `https://cafe-lumiere-production.up.railway.app/api/gallery/${id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -280,7 +280,7 @@ function GalleryManagement() {
             const token = getToken();
 
             await axios.put(
-                `http://localhost:5000/api/gallery/${item.id}`,
+                `https://cafe-lumiere-production.up.railway.app/api/gallery/${item.id}`,
                 {
                     title: item.title,
                     image: item.image || "",
@@ -542,7 +542,7 @@ function GalleryManagement() {
                                         {item.image && (
 
                                             <img
-                                                src={`http://localhost:5000${item.image}`}
+                                                src={`https://cafe-lumiere-production.up.railway.app${item.image}`}
                                                 alt={item.title}
                                                 className="w-100"
                                                 style={{
@@ -556,7 +556,7 @@ function GalleryManagement() {
                                         {item.video && (
 
                                             <video
-                                                src={`http://localhost:5000${item.video}`}
+                                                src={`https://cafe-lumiere-production.up.railway.app${item.video}`}
                                                 className="w-100"
                                                 style={{
                                                     height: "220px",
