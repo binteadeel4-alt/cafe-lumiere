@@ -9,6 +9,7 @@ import About from "./pages/About";
 import Gallery from "./pages/Gallery";
 import Reviews from "./pages/Reviews";
 import Contact from "./pages/Contact";
+import OrderTracking from "./pages/OrderTracking";
 
 import Login from "./admin/Login";
 import Dashboard from "./admin/Dashboard";
@@ -148,6 +149,11 @@ function App() {
         <Route
           path="/order-success/:orderId"
           element={<OrderSuccess />}
+        />
+
+        <Route
+          path="/track-order"
+          element={<OrderTracking />}
         />
 
       </Routes>

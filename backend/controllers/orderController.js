@@ -298,6 +298,85 @@ const getAllOrders = async (req, res) => {
     }
 };
 
+const getCustomerOrder = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+        const { phone } = req.query;
+
+        if (!id || !phone || !phone.trim()) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Order number and phone number are required."
+            });
+        }
+
+        const [orders] = await db.query(
+            `
+            SELECT
+                o.id,
+                o.customer_name,
+                o.customer_phone,
+                o.total_amount,
+                o.status,
+                o.created_at
+            FROM orders o
+            WHERE o.id = ?
+              AND o.customer_phone = ?
+            LIMIT 1
+            `,
+            [
+                id,
+                phone.trim()
+            ]
+        );
+
+        if (orders.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: "No order found with these details."
+            });
+        }
+
+        const order = orders[0];
+
+        const [items] = await db.query(
+            `
+            SELECT
+                oi.menu_item_id,
+                mi.name,
+                oi.quantity,
+                oi.price
+            FROM order_items oi
+            JOIN menu_items mi
+                ON oi.menu_item_id = mi.id
+            WHERE oi.order_id = ?
+            ORDER BY oi.id ASC
+            `,
+            [id]
+        );
+
+        res.json({
+            success: true,
+            order: {
+                ...order,
+                items
+            }
+        });
+
+    } catch (error) {
+
+        console.error("GET CUSTOMER ORDER ERROR:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to find your order."
+        });
+    }
+};
 
 const updateOrderStatus = async (req, res) => {
     try {
@@ -351,5 +430,6 @@ const updateOrderStatus = async (req, res) => {
 module.exports = {
     createOrder,
     getAllOrders,
+    getCustomerOrder,
     updateOrderStatus
 };
