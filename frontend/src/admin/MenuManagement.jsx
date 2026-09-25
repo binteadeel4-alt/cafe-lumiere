@@ -18,7 +18,8 @@ function MenuManagement() {
         name: "",
         description: "",
         price: "",
-        image: ""
+        image: "",
+        is_featured: false
     });
 
     const resetForm = () => {
@@ -27,7 +28,8 @@ function MenuManagement() {
             name: "",
             description: "",
             price: "",
-            image: ""
+            image: "",
+            is_featured: false
         });
 
         setEditingItem(null);
@@ -51,7 +53,8 @@ function MenuManagement() {
 
             const normalizedItems = menuItems.map((item) => ({
                 ...item,
-                is_available: Number(item.is_available) === 1
+                is_available: Number(item.is_available) === 1,
+                is_featured: Number(item.is_featured) === 1
             }));
 
             setItems(normalizedItems);
@@ -95,11 +98,11 @@ function MenuManagement() {
     }, []);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
 
         setFormData((previous) => ({
             ...previous,
-            [name]: value
+            [name]: type === "checkbox" ? checked : value
         }));
     };
 
@@ -114,7 +117,10 @@ function MenuManagement() {
 
             await axios.post(
                 `${API_URL}/api/menu`,
-                formData,
+                {
+                    ...formData,
+                    is_featured: formData.is_featured ? 1 : 0
+                },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -148,7 +154,8 @@ function MenuManagement() {
             name: item.name,
             description: item.description || "",
             price: item.price,
-            image: item.image || ""
+            image: item.image || "",
+            is_featured: Number(item.is_featured) === 1
         });
 
         setShowForm(true);
@@ -167,7 +174,8 @@ function MenuManagement() {
                 `${API_URL}/api/menu/${editingItem.id}`,
                 {
                     ...formData,
-                    is_available: editingItem.is_available ? 1 : 0
+                    is_available: editingItem.is_available ? 1 : 0,
+                    is_featured: formData.is_featured ? 1 : 0
                 },
                 {
                     headers: {
@@ -255,7 +263,12 @@ function MenuManagement() {
                     description: item.description,
                     price: item.price,
                     image: item.image,
-                    is_available: newAvailability ? 1 : 0
+                    is_available: newAvailability ? 1 : 0,
+                    is_featured:
+                        Number(item.is_featured) === 1 ||
+                        item.is_featured === true
+                            ? 1
+                            : 0
                 },
                 {
                     headers: {
@@ -319,9 +332,18 @@ function MenuManagement() {
                     </div>
 
                     <button
+                        type="button"
                         className="btn btn-dark rounded-pill px-4"
                         onClick={() => {
                             setEditingItem(null);
+                            setFormData({
+                                category_id: "",
+                                name: "",
+                                description: "",
+                                price: "",
+                                image: "",
+                                is_featured: false
+                            });
                             setShowForm(true);
                         }}
                     >
@@ -499,6 +521,40 @@ function MenuManagement() {
                                     </div>
 
 
+                                    {/* FEATURED */}
+
+                                    <div className="col-12">
+
+                                        <div className="form-check form-switch">
+
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                role="switch"
+                                                id="isFeatured"
+                                                name="is_featured"
+                                                checked={formData.is_featured}
+                                                onChange={handleChange}
+                                            />
+
+                                            <label
+                                                className="form-check-label fw-semibold"
+                                                htmlFor="isFeatured"
+                                            >
+                                                Show on Homepage as Featured
+                                            </label>
+
+                                        </div>
+
+                                        <small className="text-muted">
+                                            Featured items appear in the
+                                            "Our favorites" section on the
+                                            homepage.
+                                        </small>
+
+                                    </div>
+
+
                                     {/* BUTTONS */}
 
                                     <div className="col-12 d-flex gap-2">
@@ -591,6 +647,10 @@ function MenuManagement() {
                                                 Number(item.is_available) === 1 ||
                                                 item.is_available === true;
 
+                                            const isFeatured =
+                                                Number(item.is_featured) === 1 ||
+                                                item.is_featured === true;
+
                                             return (
                                                 <tr key={item.id}>
 
@@ -626,6 +686,12 @@ function MenuManagement() {
                                                                 <strong>
                                                                     {item.name}
                                                                 </strong>
+
+                                                                {isFeatured && (
+                                                                    <span className="badge bg-dark ms-2">
+                                                                        Featured
+                                                                    </span>
+                                                                )}
 
                                                                 <small className="d-block text-muted">
                                                                     {item.description}
@@ -733,3 +799,4 @@ function MenuManagement() {
 }
 
 export default MenuManagement;
+

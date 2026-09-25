@@ -12,6 +12,7 @@ const getMenuItems = async (req, res) => {
                 menu_items.price,
                 menu_items.image,
                 menu_items.is_available,
+                menu_items.is_featured,
                 categories.name AS category
             FROM menu_items
             INNER JOIN categories
@@ -47,6 +48,7 @@ const getAllMenuItems = async (req, res) => {
                 menu_items.price,
                 menu_items.image,
                 menu_items.is_available,
+                menu_items.is_featured,
                 menu_items.category_id,
                 categories.name AS category
             FROM menu_items
@@ -79,7 +81,8 @@ const createMenuItem = async (req, res) => {
             name,
             description,
             price,
-            image
+            image,
+            is_featured
         } = req.body;
 
         if (!category_id || !name || !price) {
@@ -89,16 +92,27 @@ const createMenuItem = async (req, res) => {
             });
         }
 
+        const featuredValue =
+            Number(is_featured) === 1 ? 1 : 0;
+
         const [result] = await db.query(
             `INSERT INTO menu_items
-            (category_id, name, description, price, image)
-            VALUES (?, ?, ?, ?, ?)`,
+            (
+                category_id,
+                name,
+                description,
+                price,
+                image,
+                is_featured
+            )
+            VALUES (?, ?, ?, ?, ?, ?)`,
             [
                 category_id,
                 name,
                 description || null,
                 price,
-                image || null
+                image || null,
+                featuredValue
             ]
         );
 
@@ -130,7 +144,8 @@ const updateMenuItem = async (req, res) => {
             description,
             price,
             image,
-            is_available
+            is_available,
+            is_featured
         } = req.body;
 
         if (!category_id || !name || !price) {
@@ -140,6 +155,12 @@ const updateMenuItem = async (req, res) => {
             });
         }
 
+        const availableValue =
+            Number(is_available) === 1 ? 1 : 0;
+
+        const featuredValue =
+            Number(is_featured) === 1 ? 1 : 0;
+
         await db.query(
             `UPDATE menu_items
              SET
@@ -148,7 +169,8 @@ const updateMenuItem = async (req, res) => {
                 description = ?,
                 price = ?,
                 image = ?,
-                is_available = ?
+                is_available = ?,
+                is_featured = ?
              WHERE id = ?`,
             [
                 category_id,
@@ -156,7 +178,8 @@ const updateMenuItem = async (req, res) => {
                 description || null,
                 price,
                 image || null,
-                is_available ?? true,
+                availableValue,
+                featuredValue,
                 id
             ]
         );
@@ -202,6 +225,7 @@ const deleteMenuItem = async (req, res) => {
     }
 };
 
+
 // GET GALLERY ITEMS
 const getGalleryItems = async (req, res) => {
     try {
@@ -236,6 +260,8 @@ const getGalleryItems = async (req, res) => {
         });
     }
 };
+
+
 module.exports = {
     getMenuItems,
     getAllMenuItems,
@@ -244,3 +270,4 @@ module.exports = {
     deleteMenuItem,
     getGalleryItems
 };
+
