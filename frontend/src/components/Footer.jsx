@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { SOCIAL_LINKS } from "../config";
 
 function Footer() {
     return (
@@ -63,17 +64,40 @@ function Footer() {
                         </h6>
 
                         <div className="d-flex gap-3 fs-4">
-                            <a href="#" aria-label="Instagram">
-                                <i className="bi bi-instagram"></i>
-                            </a>
 
-                            <a href="#" aria-label="Facebook">
-                                <i className="bi bi-facebook"></i>
-                            </a>
+                            {SOCIAL_LINKS.instagram && (
+                                <a
+                                    href={SOCIAL_LINKS.instagram}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="Instagram"
+                                >
+                                    <i className="bi bi-instagram"></i>
+                                </a>
+                            )}
 
-                            <a href="#" aria-label="TikTok">
-                                <i className="bi bi-tiktok"></i>
-                            </a>
+                            {SOCIAL_LINKS.facebook && (
+                                <a
+                                    href={SOCIAL_LINKS.facebook}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="Facebook"
+                                >
+                                    <i className="bi bi-facebook"></i>
+                                </a>
+                            )}
+
+                            {SOCIAL_LINKS.tiktok && (
+                                <a
+                                    href={SOCIAL_LINKS.tiktok}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="TikTok"
+                                >
+                                    <i className="bi bi-tiktok"></i>
+                                </a>
+                            )}
+
                         </div>
                     </div>
 
@@ -91,3 +115,4 @@ function Footer() {
 }
 
 export default Footer;
+

@@ -34,7 +34,7 @@ function VisitSection() {
 
                             <p className="mb-4">
                                 <i className="bi bi-telephone me-2"></i>
-                                +965 5000 0000
+                                +965 XXXX XXXX
                             </p>
 
                         </div>
@@ -68,3 +68,4 @@ function VisitSection() {
 }
 
 export default VisitSection;
+

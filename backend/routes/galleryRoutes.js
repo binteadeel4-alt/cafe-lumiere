@@ -31,18 +31,14 @@ const storage = multer.diskStorage({
             ? path.join(__dirname, "../videos")
             : path.join(__dirname, "../gallery");
 
-
         if (!fs.existsSync(folder)) {
             fs.mkdirSync(folder, {
                 recursive: true
             });
         }
 
-
         cb(null, folder);
-
     },
-
 
     filename: (req, file, cb) => {
 
@@ -53,7 +49,6 @@ const storage = multer.diskStorage({
             `${Date.now()}-${Math.round(Math.random() * 1E9)}${extension}`;
 
         cb(null, filename);
-
     }
 
 });
@@ -78,25 +73,19 @@ const fileFilter = (req, file, cb) => {
         "video/quicktime"
     ];
 
-
     if (
         allowedImages.includes(file.mimetype) ||
         allowedVideos.includes(file.mimetype)
     ) {
-
         cb(null, true);
-
     } else {
-
         cb(
             new Error(
                 "Only JPG, PNG, WEBP, MP4, WEBM and MOV files are allowed."
             ),
             false
         );
-
     }
-
 };
 
 
@@ -142,6 +131,7 @@ router.post(
 router.put(
     "/:id",
     protect,
+    upload.single("file"),
     updateGallery
 );
 

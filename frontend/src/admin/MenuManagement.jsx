@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_URL } from "../config";
 
 function MenuManagement() {
     const [items, setItems] = useState([]);
@@ -20,12 +21,25 @@ function MenuManagement() {
         image: ""
     });
 
+    const resetForm = () => {
+        setFormData({
+            category_id: "",
+            name: "",
+            description: "",
+            price: "",
+            image: ""
+        });
+
+        setEditingItem(null);
+        setShowForm(false);
+    };
+
     const fetchItems = async () => {
         try {
             const token = localStorage.getItem("adminToken");
 
             const response = await axios.get(
-                "https://cafe-lumiere-production.up.railway.app/api/menu/admin/all",
+                `${API_URL}/api/menu/admin/all`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -33,21 +47,33 @@ function MenuManagement() {
                 }
             );
 
-            setItems(response.data.items);
+            const menuItems = response.data?.items || [];
+
+            const normalizedItems = menuItems.map((item) => ({
+                ...item,
+                is_available: Number(item.is_available) === 1
+            }));
+
+            setItems(normalizedItems);
 
         } catch (error) {
             console.error(error);
-            setError("Failed to load menu items.");
+
+            setError(
+                error.response?.status === 401
+                    ? "Your admin session has expired. Please log in again."
+                    : "Failed to load menu items."
+            );
         }
     };
 
     const fetchCategories = async () => {
         try {
             const response = await axios.get(
-                "https://cafe-lumiere-production.up.railway.app/api/categories"
+                `${API_URL}/api/categories`
             );
 
-            setCategories(response.data.categories);
+            setCategories(response.data?.categories || []);
 
         } catch (error) {
             console.error(error);
@@ -87,7 +113,7 @@ function MenuManagement() {
             const token = localStorage.getItem("adminToken");
 
             await axios.post(
-                "https://cafe-lumiere-production.up.railway.app/api/menu",
+                `${API_URL}/api/menu`,
                 formData,
                 {
                     headers: {
@@ -98,15 +124,7 @@ function MenuManagement() {
 
             setSuccess("Menu item added successfully!");
 
-            setFormData({
-                category_id: "",
-                name: "",
-                description: "",
-                price: "",
-                image: ""
-            });
-
-            setShowForm(false);
+            resetForm();
 
             await fetchItems();
 
@@ -114,8 +132,10 @@ function MenuManagement() {
             console.error(error);
 
             setError(
-                error.response?.data?.message ||
-                "Failed to add menu item."
+                error.response?.status === 401
+                    ? "Your admin session has expired. Please log in again."
+                    : error.response?.data?.message ||
+                    "Failed to add menu item."
             );
         }
     };
@@ -133,6 +153,7 @@ function MenuManagement() {
 
         setShowForm(true);
     };
+
     const handleUpdate = async (e) => {
         e.preventDefault();
 
@@ -143,10 +164,10 @@ function MenuManagement() {
             const token = localStorage.getItem("adminToken");
 
             await axios.put(
-                `https://cafe-lumiere-production.up.railway.app/api/menu/${editingItem.id}`,
+                `${API_URL}/api/menu/${editingItem.id}`,
                 {
                     ...formData,
-                    is_available: editingItem.is_available
+                    is_available: editingItem.is_available ? 1 : 0
                 },
                 {
                     headers: {
@@ -157,17 +178,7 @@ function MenuManagement() {
 
             setSuccess("Menu item updated successfully!");
 
-            setEditingItem(null);
-
-            setShowForm(false);
-
-            setFormData({
-                category_id: "",
-                name: "",
-                description: "",
-                price: "",
-                image: ""
-            });
+            resetForm();
 
             await fetchItems();
 
@@ -175,11 +186,14 @@ function MenuManagement() {
             console.error(error);
 
             setError(
-                error.response?.data?.message ||
-                "Failed to update menu item."
+                error.response?.status === 401
+                    ? "Your admin session has expired. Please log in again."
+                    : error.response?.data?.message ||
+                    "Failed to update menu item."
             );
         }
     };
+
     const handleDelete = async (id) => {
         const confirmed = window.confirm(
             "Are you sure you want to delete this menu item?"
@@ -196,7 +210,7 @@ function MenuManagement() {
             const token = localStorage.getItem("adminToken");
 
             await axios.delete(
-                `https://cafe-lumiere-production.up.railway.app/api/menu/${id}`,
+                `${API_URL}/api/menu/${id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -212,24 +226,36 @@ function MenuManagement() {
             console.error(error);
 
             setError(
-                error.response?.data?.message ||
-                "Failed to delete menu item."
+                error.response?.status === 401
+                    ? "Your admin session has expired. Please log in again."
+                    : error.response?.data?.message ||
+                    "Failed to delete menu item."
             );
         }
     };
+
     const handleToggleAvailability = async (item) => {
+        setError("");
+        setSuccess("");
+
+        const currentAvailability =
+            Number(item.is_available) === 1 ||
+            item.is_available === true;
+
+        const newAvailability = !currentAvailability;
+
         try {
             const token = localStorage.getItem("adminToken");
 
             await axios.put(
-                `https://cafe-lumiere-production.up.railway.app/api/menu/${item.id}`,
+                `${API_URL}/api/menu/${item.id}`,
                 {
                     category_id: item.category_id,
                     name: item.name,
                     description: item.description,
                     price: item.price,
                     image: item.image,
-                    is_available: !item.is_available
+                    is_available: newAvailability ? 1 : 0
                 },
                 {
                     headers: {
@@ -239,9 +265,9 @@ function MenuManagement() {
             );
 
             setSuccess(
-                item.is_available
-                    ? `${item.name} is now unavailable.`
-                    : `${item.name} is now available.`
+                newAvailability
+                    ? `${item.name} is now available.`
+                    : `${item.name} is now unavailable.`
             );
 
             await fetchItems();
@@ -250,11 +276,29 @@ function MenuManagement() {
             console.error(error);
 
             setError(
-                error.response?.data?.message ||
-                "Failed to update availability."
+                error.response?.status === 401
+                    ? "Your admin session has expired. Please log in again."
+                    : error.response?.data?.message ||
+                    "Failed to update availability."
             );
         }
     };
+
+    const getImageUrl = (image) => {
+        if (!image) {
+            return "";
+        }
+
+        if (
+            image.startsWith("http://") ||
+            image.startsWith("https://")
+        ) {
+            return image;
+        }
+
+        return `${API_URL}${image}`;
+    };
+
     return (
         <div className="admin-dashboard">
 
@@ -276,7 +320,10 @@ function MenuManagement() {
 
                     <button
                         className="btn btn-dark rounded-pill px-4"
-                        onClick={() => setShowForm(true)}
+                        onClick={() => {
+                            setEditingItem(null);
+                            setShowForm(true);
+                        }}
                     >
                         <i className="bi bi-plus-lg me-2"></i>
                         Add Item
@@ -300,7 +347,7 @@ function MenuManagement() {
                 )}
 
 
-                {/* ADD FORM */}
+                {/* ADD / EDIT FORM */}
 
                 {showForm && (
                     <div className="card border-0 shadow-sm mb-4">
@@ -310,17 +357,27 @@ function MenuManagement() {
                             <div className="d-flex justify-content-between align-items-center mb-4">
 
                                 <h4 className="fw-bold mb-0">
-                                    {editingItem ? "Edit Menu Item" : "Add New Menu Item"}
+                                    {editingItem
+                                        ? "Edit Menu Item"
+                                        : "Add New Menu Item"}
                                 </h4>
 
                                 <button
+                                    type="button"
                                     className="btn-close"
-                                    onClick={() => setShowForm(false)}
+                                    aria-label="Close"
+                                    onClick={resetForm}
                                 ></button>
 
                             </div>
 
-                            <form onSubmit={editingItem ? handleUpdate : handleSubmit}>
+                            <form
+                                onSubmit={
+                                    editingItem
+                                        ? handleUpdate
+                                        : handleSubmit
+                                }
+                            >
 
                                 <div className="row g-3">
 
@@ -450,24 +507,15 @@ function MenuManagement() {
                                             type="submit"
                                             className="btn btn-dark px-4"
                                         >
-                                            {editingItem ? "Save Changes" : "Add Item"}
+                                            {editingItem
+                                                ? "Save Changes"
+                                                : "Add Item"}
                                         </button>
 
                                         <button
                                             type="button"
                                             className="btn btn-outline-secondary"
-                                            onClick={() => {
-                                                setShowForm(false);
-                                                setEditingItem(null);
-
-                                                setFormData({
-                                                    category_id: "",
-                                                    name: "",
-                                                    description: "",
-                                                    price: "",
-                                                    image: ""
-                                                });
-                                            }}
+                                            onClick={resetForm}
                                         >
                                             Cancel
                                         </button>
@@ -490,7 +538,15 @@ function MenuManagement() {
 
                     <div className="text-center py-5">
 
-                        <div className="spinner-border"></div>
+                        <div
+                            className="spinner-border"
+                            role="status"
+                            aria-label="Loading menu items"
+                        >
+                            <span className="visually-hidden">
+                                Loading...
+                            </span>
+                        </div>
 
                     </div>
 
@@ -516,111 +572,149 @@ function MenuManagement() {
 
                                 <tbody>
 
-                                    {items.map((item) => (
+                                    {items.length === 0 ? (
 
-                                        <tr key={item.id}>
+                                        <tr>
+                                            <td
+                                                colSpan="5"
+                                                className="text-center text-muted py-5"
+                                            >
+                                                No menu items found.
+                                            </td>
+                                        </tr>
 
-                                            <td>
+                                    ) : (
 
-                                                <div className="d-flex align-items-center gap-3">
+                                        items.map((item) => {
 
-                                                    {item.image ? (
+                                            const isAvailable =
+                                                Number(item.is_available) === 1 ||
+                                                item.is_available === true;
 
-                                                        <img
-                                                            src={`https://cafe-lumiere-production.up.railway.app${item.image}`}
-                                                            alt={item.name}
-                                                            className="admin-menu-image"
-                                                        />
+                                            return (
+                                                <tr key={item.id}>
 
-                                                    ) : (
+                                                    <td>
 
-                                                        <div className="admin-menu-placeholder">
+                                                        <div className="d-flex align-items-center gap-3">
 
-                                                            <i className="bi bi-cup-hot"></i>
+                                                            {item.image ? (
+
+                                                                <img
+                                                                    src={getImageUrl(item.image)}
+                                                                    alt={item.name}
+                                                                    className="admin-menu-image"
+                                                                    loading="lazy"
+                                                                    onError={(event) => {
+                                                                        event.currentTarget.style.display =
+                                                                            "none";
+                                                                    }}
+                                                                />
+
+                                                            ) : (
+
+                                                                <div className="admin-menu-placeholder">
+
+                                                                    <i className="bi bi-cup-hot"></i>
+
+                                                                </div>
+
+                                                            )}
+
+                                                            <div>
+
+                                                                <strong>
+                                                                    {item.name}
+                                                                </strong>
+
+                                                                <small className="d-block text-muted">
+                                                                    {item.description}
+                                                                </small>
+
+                                                            </div>
 
                                                         </div>
 
-                                                    )}
+                                                    </td>
 
-                                                    <div>
+                                                    <td>
+                                                        {item.category}
+                                                    </td>
 
-                                                        <strong>
-                                                            {item.name}
-                                                        </strong>
+                                                    <td>
+                                                        KD {item.price}
+                                                    </td>
 
-                                                        <small className="d-block text-muted">
-                                                            {item.description}
-                                                        </small>
+                                                    <td>
 
-                                                    </div>
+                                                        <div className="form-check form-switch">
 
-                                                </div>
+                                                            <input
+                                                                className="form-check-input availability-switch"
+                                                                type="checkbox"
+                                                                role="switch"
+                                                                checked={isAvailable}
+                                                                onChange={() =>
+                                                                    handleToggleAvailability(item)
+                                                                }
+                                                                aria-label={`Toggle availability for ${item.name}`}
+                                                            />
 
-                                            </td>
+                                                            <label className="form-check-label">
 
-                                            <td>
-                                                {item.category}
-                                            </td>
+                                                                {isAvailable ? (
+                                                                    <span className="text-success fw-semibold">
+                                                                        Available
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-secondary fw-semibold">
+                                                                        Unavailable
+                                                                    </span>
+                                                                )}
 
-                                            <td>
-                                                KD {item.price}
-                                            </td>
+                                                            </label>
 
-                                            <td>
-                                                <div className="form-check form-switch">
+                                                        </div>
 
-                                                    <input
-                                                        className="form-check-input availability-switch"
-                                                        type="checkbox"
-                                                        role="switch"
-                                                        checked={Boolean(item.is_available)}
-                                                        onChange={() =>
-                                                            handleToggleAvailability(item)
-                                                        }
-                                                    />
+                                                    </td>
 
-                                                    <label className="form-check-label">
-                                                        {item.is_available ? (
-                                                            <span className="text-success fw-semibold">
-                                                                Available
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-secondary fw-semibold">
-                                                                Unavailable
-                                                            </span>
-                                                        )}
-                                                    </label>
+                                                    <td>
 
-                                                </div>
-                                            </td>
+                                                        <div className="d-flex gap-2">
 
-                                            <td>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-outline-dark"
+                                                                title="Edit"
+                                                                aria-label={`Edit ${item.name}`}
+                                                                onClick={() =>
+                                                                    handleEdit(item)
+                                                                }
+                                                            >
+                                                                <i className="bi bi-pencil"></i>
+                                                            </button>
 
-                                                <div className="d-flex gap-2">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-outline-danger"
+                                                                title="Delete"
+                                                                aria-label={`Delete ${item.name}`}
+                                                                onClick={() =>
+                                                                    handleDelete(item.id)
+                                                                }
+                                                            >
+                                                                <i className="bi bi-trash"></i>
+                                                            </button>
 
-                                                    <button
-                                                        className="btn btn-sm btn-outline-dark"
-                                                        title="Edit"
-                                                        onClick={() => handleEdit(item)}
-                                                    >
-                                                        <i className="bi bi-pencil"></i>
-                                                    </button>
+                                                        </div>
 
-                                                    <button
-                                                        className="btn btn-sm btn-outline-danger"
-                                                        title="Delete"
-                                                        onClick={() => handleDelete(item.id)}
-                                                    >
-                                                        <i className="bi bi-trash"></i>
-                                                    </button>
+                                                    </td>
 
-                                                </div>
+                                                </tr>
+                                            );
+                                        })
 
-                                            </td>
-
-                                        </tr>
-
-                                    ))}
+                                    )}
 
                                 </tbody>
 

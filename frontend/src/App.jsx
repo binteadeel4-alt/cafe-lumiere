@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
@@ -8,7 +9,6 @@ import About from "./pages/About";
 import Gallery from "./pages/Gallery";
 import Reviews from "./pages/Reviews";
 import Contact from "./pages/Contact";
-import Footer from "./components/Footer";
 
 import Login from "./admin/Login";
 import Dashboard from "./admin/Dashboard";
@@ -18,32 +18,37 @@ import Messages from "./admin/Messages";
 import AdminReviews from "./admin/AdminReviews";
 import AdminRoute from "./admin/AdminRoute";
 import AdminNavbar from "./admin/AdminNavbar";
+import GalleryManagement from "./admin/GalleryManagement";
 
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
-import GalleryManagement from "./admin/GalleryManagement";
 
 
 function App() {
 
   const location = useLocation();
 
-  const isAdminPage =
-    location.pathname.startsWith("/admin") &&
-    location.pathname !== "/admin/login";
+  const isAdminPage = location.pathname.startsWith("/admin");
+
+  const isAdminLogin = location.pathname === "/admin/login";
+
+  const showAdminNavbar = isAdminPage && !isAdminLogin;
+
+  const showPublicLayout = !isAdminPage;
 
 
   return (
     <>
 
-      {/* NAVBAR */}
+      {/* PUBLIC NAVBAR */}
 
-      {isAdminPage ? (
-        <AdminNavbar />
-      ) : (
-        <Navbar />
-      )}
+      {showPublicLayout && <Navbar />}
+
+
+      {/* ADMIN NAVBAR */}
+
+      {showAdminNavbar && <AdminNavbar />}
 
 
       {/* ROUTES */}
@@ -119,6 +124,7 @@ function App() {
             path="/admin/reviews"
             element={<AdminReviews />}
           />
+
           <Route
             path="/admin/gallery"
             element={<GalleryManagement />}
@@ -147,9 +153,9 @@ function App() {
       </Routes>
 
 
-      {/* FOOTER */}
+      {/* PUBLIC FOOTER */}
 
-      <Footer />
+      {showPublicLayout && <Footer />}
 
     </>
   );
@@ -157,3 +163,4 @@ function App() {
 
 
 export default App;
+

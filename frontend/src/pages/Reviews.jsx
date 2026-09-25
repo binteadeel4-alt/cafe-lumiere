@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../config";
 
 function Reviews() {
 
@@ -19,26 +20,41 @@ function Reviews() {
     const [success, setSuccess] = useState("");
 
 
+    // ==========================================
+    // FETCH REVIEWS
+    // ==========================================
+
     const fetchReviews = async () => {
+
         try {
 
+            setError("");
+
             const response = await axios.get(
-                "https://cafe-lumiere-production.up.railway.app/api/reviews"
+                `${API_URL}/api/reviews`
             );
 
-            setReviews(response.data.reviews || []);
+            setReviews(
+                response.data.reviews || []
+            );
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "FETCH REVIEWS ERROR:",
+                error
+            );
 
-            setError("Unable to load customer reviews.");
+            setError(
+                "Unable to load customer reviews."
+            );
 
         } finally {
 
             setLoading(false);
 
         }
+
     };
 
 
@@ -47,13 +63,39 @@ function Reviews() {
     }, []);
 
 
+    // ==========================================
+    // FORM CHANGE
+    // ==========================================
+
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+
+        const { name, value } = e.target;
+
+        setFormData((current) => ({
+            ...current,
+            [name]: value
+        }));
+
     };
 
+
+    // ==========================================
+    // STAR RATING
+    // ==========================================
+
+    const handleRatingChange = (rating) => {
+
+        setFormData((current) => ({
+            ...current,
+            rating
+        }));
+
+    };
+
+
+    // ==========================================
+    // SUBMIT REVIEW
+    // ==========================================
 
     const handleSubmit = async (e) => {
 
@@ -66,11 +108,16 @@ function Reviews() {
         try {
 
             const response = await axios.post(
-                "https://cafe-lumiere-production.up.railway.app/api/reviews",
+                `${API_URL}/api/reviews`,
                 {
-                    customer_name: formData.customer_name,
-                    rating: Number(formData.rating),
-                    comment: formData.comment
+                    customer_name:
+                        formData.customer_name.trim(),
+
+                    rating:
+                        Number(formData.rating),
+
+                    comment:
+                        formData.comment.trim()
                 }
             );
 
@@ -85,11 +132,15 @@ function Reviews() {
                     rating: 5,
                     comment: ""
                 });
+
             }
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "SUBMIT REVIEW ERROR:",
+                error
+            );
 
             setError(
                 error.response?.data?.message ||
@@ -101,8 +152,13 @@ function Reviews() {
             setSubmitting(false);
 
         }
+
     };
 
+
+    // ==========================================
+    // DISPLAY STARS
+    // ==========================================
 
     const renderStars = (rating) => {
 
@@ -115,16 +171,21 @@ function Reviews() {
                         ? "bi bi-star-fill me-1"
                         : "bi bi-star me-1"
                 }
+                aria-hidden="true"
             ></i>
 
         ));
+
     };
 
 
     return (
+
         <main className="reviews-page">
 
-            {/* HEADER */}
+            {/* ==========================================
+                HEADER
+            ========================================== */}
 
             <section className="py-5 bg-light">
 
@@ -152,34 +213,54 @@ function Reviews() {
             </section>
 
 
-            {/* REVIEWS */}
+            {/* ==========================================
+                REVIEWS
+            ========================================== */}
 
             <section className="py-5">
 
                 <div className="container py-lg-4">
 
+                    {/* LOADING */}
+
                     {loading && (
 
-                        <div className="text-center py-5">
+                        <div
+                            className="text-center py-5"
+                            aria-live="polite"
+                        >
 
                             <div
                                 className="spinner-border"
                                 role="status"
-                            />
+                            >
+
+                                <span className="visually-hidden">
+                                    Loading reviews...
+                                </span>
+
+                            </div>
 
                         </div>
 
                     )}
 
 
+                    {/* ERROR */}
+
                     {!loading && error && (
 
-                        <div className="alert alert-danger text-center">
+                        <div
+                            className="alert alert-danger text-center"
+                            role="alert"
+                        >
                             {error}
                         </div>
 
                     )}
 
+
+                    {/* EMPTY */}
 
                     {!loading &&
                         !error &&
@@ -187,7 +268,10 @@ function Reviews() {
 
                             <div className="text-center py-5">
 
-                                <i className="bi bi-chat-heart fs-1"></i>
+                                <i
+                                    className="bi bi-chat-heart fs-1"
+                                    aria-hidden="true"
+                                ></i>
 
                                 <h4 className="fw-bold mt-3">
                                     No reviews yet
@@ -201,6 +285,8 @@ function Reviews() {
 
                         )}
 
+
+                    {/* REVIEWS */}
 
                     {!loading &&
                         !error &&
@@ -219,7 +305,10 @@ function Reviews() {
 
                                             <div className="card-body p-4">
 
-                                                <div className="mb-3">
+                                                <div
+                                                    className="mb-3"
+                                                    aria-label={`${review.rating} out of 5 stars`}
+                                                >
                                                     {renderStars(
                                                         review.rating
                                                     )}
@@ -237,6 +326,7 @@ function Reviews() {
                                                             width: "48px",
                                                             height: "48px"
                                                         }}
+                                                        aria-hidden="true"
                                                     >
                                                         {review.customer_name
                                                             ?.charAt(0)
@@ -274,7 +364,9 @@ function Reviews() {
             </section>
 
 
-            {/* WRITE REVIEW */}
+            {/* ==========================================
+                WRITE REVIEW
+            ========================================== */}
 
             <section className="py-5 bg-light">
 
@@ -290,7 +382,10 @@ function Reviews() {
 
                                     <div className="text-center mb-4">
 
-                                        <i className="bi bi-chat-heart fs-1"></i>
+                                        <i
+                                            className="bi bi-chat-heart fs-1"
+                                            aria-hidden="true"
+                                        ></i>
 
                                         <h2 className="fw-bold mt-3">
                                             Share Your Experience
@@ -304,97 +399,155 @@ function Reviews() {
                                     </div>
 
 
+                                    {/* SUCCESS */}
+
                                     {success && (
-                                        <div className="alert alert-success">
+
+                                        <div
+                                            className="alert alert-success"
+                                            role="alert"
+                                        >
                                             {success}
                                         </div>
+
                                     )}
 
 
+                                    {/* ERROR */}
+
                                     {error && (
-                                        <div className="alert alert-danger">
+
+                                        <div
+                                            className="alert alert-danger"
+                                            role="alert"
+                                        >
                                             {error}
                                         </div>
+
                                     )}
 
 
                                     <form onSubmit={handleSubmit}>
 
+                                        {/* NAME */}
+
                                         <div className="mb-3">
 
-                                            <label className="form-label fw-semibold">
+                                            <label
+                                                htmlFor="customer-name"
+                                                className="form-label fw-semibold"
+                                            >
                                                 Your Name
                                             </label>
 
                                             <input
+                                                id="customer-name"
                                                 type="text"
                                                 name="customer_name"
                                                 className="form-control"
-                                                value={formData.customer_name}
+                                                value={
+                                                    formData.customer_name
+                                                }
                                                 onChange={handleChange}
                                                 placeholder="Enter your name"
+                                                maxLength="100"
                                                 required
                                             />
 
                                         </div>
 
 
-                                        <div className="mb-3">
+                                        {/* RATING */}
 
-                                            <label className="form-label fw-semibold">
+                                        <div className="mb-4">
+
+                                            <label className="form-label fw-semibold d-block">
                                                 Your Rating
                                             </label>
 
-                                            <select
-                                                name="rating"
-                                                className="form-select"
-                                                value={formData.rating}
-                                                onChange={handleChange}
-                                                required
+                                            <div
+                                                className="d-flex align-items-center gap-1"
+                                                role="radiogroup"
+                                                aria-label="Select your rating"
                                             >
-                                                <option value="5">
-                                                    ⭐⭐⭐⭐⭐ — Excellent
-                                                </option>
 
-                                                <option value="4">
-                                                    ⭐⭐⭐⭐ — Very Good
-                                                </option>
+                                                {[1, 2, 3, 4, 5].map(
+                                                    (rating) => (
 
-                                                <option value="3">
-                                                    ⭐⭐⭐ — Good
-                                                </option>
+                                                        <button
+                                                            key={rating}
+                                                            type="button"
+                                                            className="btn p-1 border-0"
+                                                            onClick={() =>
+                                                                handleRatingChange(
+                                                                    rating
+                                                                )
+                                                            }
+                                                            role="radio"
+                                                            aria-checked={
+                                                                Number(
+                                                                    formData.rating
+                                                                ) === rating
+                                                            }
+                                                            aria-label={`${rating} star${rating > 1 ? "s" : ""}`}
+                                                            title={`${rating} star${rating > 1 ? "s" : ""}`}
+                                                        >
 
-                                                <option value="2">
-                                                    ⭐⭐ — Fair
-                                                </option>
+                                                            <i
+                                                                className={
+                                                                    rating <=
+                                                                        Number(
+                                                                            formData.rating
+                                                                        )
+                                                                        ? "bi bi-star-fill fs-3"
+                                                                        : "bi bi-star fs-3"
+                                                                }
+                                                                aria-hidden="true"
+                                                            ></i>
 
-                                                <option value="1">
-                                                    ⭐ — Poor
-                                                </option>
+                                                        </button>
 
-                                            </select>
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                            <div className="small text-muted mt-1">
+                                                {Number(formData.rating)} out of 5 stars
+                                            </div>
 
                                         </div>
 
 
+                                        {/* COMMENT */}
+
                                         <div className="mb-4">
 
-                                            <label className="form-label fw-semibold">
+                                            <label
+                                                htmlFor="review-comment"
+                                                className="form-label fw-semibold"
+                                            >
                                                 Your Review
                                             </label>
 
                                             <textarea
+                                                id="review-comment"
                                                 name="comment"
                                                 className="form-control"
                                                 rows="5"
-                                                value={formData.comment}
+                                                value={
+                                                    formData.comment
+                                                }
                                                 onChange={handleChange}
                                                 placeholder="Tell us about your experience..."
+                                                maxLength="1000"
                                                 required
                                             />
 
                                         </div>
 
+
+                                        {/* SUBMIT */}
 
                                         <button
                                             type="submit"
@@ -403,15 +556,31 @@ function Reviews() {
                                         >
 
                                             {submitting ? (
+
                                                 <>
-                                                    <span className="spinner-border spinner-border-sm me-2"></span>
+
+                                                    <span
+                                                        className="spinner-border spinner-border-sm me-2"
+                                                        aria-hidden="true"
+                                                    ></span>
+
                                                     Submitting...
+
                                                 </>
+
                                             ) : (
+
                                                 <>
+
                                                     Submit Review
-                                                    <i className="bi bi-send ms-2"></i>
+
+                                                    <i
+                                                        className="bi bi-send ms-2"
+                                                        aria-hidden="true"
+                                                    ></i>
+
                                                 </>
+
                                             )}
 
                                         </button>
@@ -431,13 +600,18 @@ function Reviews() {
             </section>
 
 
-            {/* CTA */}
+            {/* ==========================================
+                CTA
+            ========================================== */}
 
             <section className="py-5">
 
                 <div className="container text-center py-4">
 
-                    <i className="bi bi-heart-fill fs-1"></i>
+                    <i
+                        className="bi bi-heart-fill fs-1"
+                        aria-hidden="true"
+                    ></i>
 
                     <h2 className="fw-bold mt-3">
                         Your experience matters to us.
@@ -455,7 +629,12 @@ function Reviews() {
                         className="btn btn-dark rounded-pill px-4"
                     >
                         Contact Us
-                        <i className="bi bi-arrow-right ms-2"></i>
+
+                        <i
+                            className="bi bi-arrow-right ms-2"
+                            aria-hidden="true"
+                        ></i>
+
                     </Link>
 
                 </div>
@@ -463,7 +642,9 @@ function Reviews() {
             </section>
 
         </main>
+
     );
+
 }
 
 export default Reviews;

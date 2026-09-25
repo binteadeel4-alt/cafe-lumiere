@@ -1,6 +1,6 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { API_URL } from "../config";
 
 function GalleryManagement() {
 
@@ -18,12 +18,13 @@ function GalleryManagement() {
 
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [saving, setSaving] = useState(false);
+
+    const fileInputRef = useRef(null);
 
     const getToken = () => {
         return localStorage.getItem("adminToken");
     };
-
-
 
     // ==========================================
     // FETCH GALLERY
@@ -33,10 +34,12 @@ function GalleryManagement() {
 
         try {
 
+            setError("");
+
             const token = getToken();
 
             const response = await axios.get(
-                "https://cafe-lumiere-production.up.railway.app/api/gallery/admin/all",
+                `${API_URL}/api/gallery/admin/all`,
                 {
                     headers: {
                         Authorization: `Bearer ${token} `
@@ -50,25 +53,110 @@ function GalleryManagement() {
 
             console.error("FETCH GALLERY ERROR:", error);
 
-            setError(
-                error.response?.data?.message ||
-                "Failed to load gallery."
-            );
+            if (error.response?.status === 401) {
+                setError(
+                    "Your admin session has expired. Please log in again."
+                );
+            } else {
+                setError(
+                    error.response?.data?.message ||
+                    "Failed to load gallery."
+                );
+            }
 
         } finally {
 
             setLoading(false);
 
         }
+
     };
+
+
+    // ==========================================
+    // FILE VALIDATION
+    // ==========================================
+
+    const validateFile = (file, mediaType) => {
+
+        if (!file) {
+            return "Please select a file.";
+        }
+
+        const maxSize = 100 * 1024 * 1024;
+
+        if (file.size > maxSize) {
+            return "File size must be 100 MB or smaller.";
+        }
+
+        const allowedImages = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/webp"
+        ];
+
+        const allowedVideos = [
+            "video/mp4",
+            "video/webm",
+            "video/quicktime"
+        ];
+
+        if (
+            mediaType === "image" &&
+            !allowedImages.includes(file.type)
+        ) {
+            return "Please select a JPG, PNG or WEBP image.";
+        }
+
+        if (
+            mediaType === "video" &&
+            !allowedVideos.includes(file.type)
+        ) {
+            return "Please select an MP4, WEBM or MOV video.";
+        }
+
+        return "";
+
+    };
+
+
+    // ==========================================
+    // FILE CHANGE
+    // ==========================================
 
     const handleFileChange = (e) => {
 
         const file = e.target.files[0];
 
         if (!file) {
+            setFormData((current) => ({
+                ...current,
+                file: null
+            }));
             return;
         }
+
+        const fileError = validateFile(
+            file,
+            formData.media_type
+        );
+
+        if (fileError) {
+
+            setError(fileError);
+
+            e.target.value = "";
+
+            setFormData((current) => ({
+                ...current,
+                file: null
+            }));
+
+            return;
+        }
+
+        setError("");
 
         setFormData((current) => ({
             ...current,
@@ -78,10 +166,27 @@ function GalleryManagement() {
     };
 
 
+    // ==========================================
+    // MEDIA TYPE CHANGE
+    // ==========================================
 
-    useEffect(() => {
-        fetchGallery();
-    }, []);
+    const handleMediaTypeChange = (e) => {
+
+        const mediaType = e.target.value;
+
+        setFormData((current) => ({
+            ...current,
+            media_type: mediaType,
+            file: null
+        }));
+
+        setError("");
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+
+    };
 
 
     // ==========================================
@@ -101,7 +206,7 @@ function GalleryManagement() {
 
 
     // ==========================================
-    // RESET
+    // RESET FORM
     // ==========================================
 
     const resetForm = () => {
@@ -114,8 +219,14 @@ function GalleryManagement() {
         });
 
         setEditingId(null);
+        setError("");
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
 
     };
+
 
     // ==========================================
     // SUBMIT
@@ -128,31 +239,71 @@ function GalleryManagement() {
         setError("");
         setSuccess("");
 
+        if (!formData.title.trim()) {
+            setError("Title is required.");
+            return;
+        }
+
+        // New item requires a file.
+        if (!editingId && !formData.file) {
+            setError("Please select an image or video.");
+            return;
+        }
+
+        // If a new file was selected while editing,
+        // validate it before sending.
+        if (formData.file) {
+
+            const fileError = validateFile(
+                formData.file,
+                formData.media_type
+            );
+
+            if (fileError) {
+                setError(fileError);
+                return;
+            }
+
+        }
+
         try {
+
+            setSaving(true);
 
             const token = getToken();
 
-            const data = new FormData();
-
-            data.append("title", formData.title);
-            data.append("description", formData.description);
-
-            if (formData.file) {
-                data.append("file", formData.file);
-            }
-
             if (editingId) {
 
-                // Keep your existing update system
+                const data = new FormData();
+
+                data.append(
+                    "title",
+                    formData.title.trim()
+                );
+
+                data.append(
+                    "description",
+                    formData.description.trim()
+                );
+
+                data.append(
+                    "is_active",
+                    "1"
+                );
+
+                if (formData.file) {
+                    data.append(
+                        "file",
+                        formData.file
+                    );
+                }
+
                 await axios.put(
-                    `https://cafe-lumiere-production.up.railway.app/api/gallery/${editingId}`,
-                    {
-                        title: formData.title,
-                        description: formData.description
-                    },
+                    `${API_URL}/api/gallery/${editingId}`,
+                    data,
                     {
                         headers: {
-                            Authorization: `Bearer ${token}`
+                            Authorization: `Bearer ${token} `
                         }
                     }
                 );
@@ -163,12 +314,29 @@ function GalleryManagement() {
 
             } else {
 
+                const data = new FormData();
+
+                data.append(
+                    "title",
+                    formData.title.trim()
+                );
+
+                data.append(
+                    "description",
+                    formData.description.trim()
+                );
+
+                data.append(
+                    "file",
+                    formData.file
+                );
+
                 await axios.post(
-                    "https://cafe-lumiere-production.up.railway.app/api/gallery",
+                    `${API_URL}/api/gallery`,
                     data,
                     {
                         headers: {
-                            Authorization: `Bearer ${token}`
+                            Authorization: `Bearer ${token} `
                         }
                     }
                 );
@@ -190,10 +358,24 @@ function GalleryManagement() {
                 error
             );
 
-            setError(
-                error.response?.data?.message ||
-                "Failed to save gallery item."
-            );
+            if (error.response?.status === 401) {
+
+                setError(
+                    "Your admin session has expired. Please log in again."
+                );
+
+            } else {
+
+                setError(
+                    error.response?.data?.message ||
+                    "Failed to save gallery item."
+                );
+
+            }
+
+        } finally {
+
+            setSaving(false);
 
         }
 
@@ -210,11 +392,19 @@ function GalleryManagement() {
 
         setFormData({
             title: item.title || "",
-            media_type: item.video ? "video" : "image",
-            image: item.image || "",
-            video: item.video || "",
+            media_type: item.video
+                ? "video"
+                : "image",
+            file: null,
             description: item.description || ""
         });
+
+        setError("");
+        setSuccess("");
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
 
         window.scrollTo({
             top: 0,
@@ -240,29 +430,51 @@ function GalleryManagement() {
 
         try {
 
+            setError("");
+            setSuccess("");
+
             const token = getToken();
 
             await axios.delete(
-                `https://cafe-lumiere-production.up.railway.app/api/gallery/${id}`,
+                `${API_URL}/api/gallery/${id}`,
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token} `
                     }
                 }
             );
 
-            setSuccess("Gallery item deleted successfully.");
+            setSuccess(
+                "Gallery item deleted successfully."
+            );
+
+            if (editingId === id) {
+                resetForm();
+            }
 
             await fetchGallery();
 
         } catch (error) {
 
-            console.error("DELETE GALLERY ERROR:", error);
-
-            setError(
-                error.response?.data?.message ||
-                "Failed to delete gallery item."
+            console.error(
+                "DELETE GALLERY ERROR:",
+                error
             );
+
+            if (error.response?.status === 401) {
+
+                setError(
+                    "Your admin session has expired. Please log in again."
+                );
+
+            } else {
+
+                setError(
+                    error.response?.data?.message ||
+                    "Failed to delete gallery item."
+                );
+
+            }
 
         }
 
@@ -277,14 +489,15 @@ function GalleryManagement() {
 
         try {
 
+            setError("");
+            setSuccess("");
+
             const token = getToken();
 
             await axios.put(
-                `https://cafe-lumiere-production.up.railway.app/api/gallery/${item.id}`,
+                `${API_URL}/api/gallery/${item.id}`,
                 {
                     title: item.title,
-                    image: item.image || "",
-                    video: item.video || "",
                     description: item.description || "",
                     is_active:
                         Number(item.is_active) === 1
@@ -293,7 +506,7 @@ function GalleryManagement() {
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token} `
                     }
                 }
             );
@@ -302,16 +515,38 @@ function GalleryManagement() {
 
         } catch (error) {
 
-            console.error("TOGGLE GALLERY ERROR:", error);
-
-            setError(
-                error.response?.data?.message ||
-                "Failed to update gallery status."
+            console.error(
+                "TOGGLE GALLERY ERROR:",
+                error
             );
+
+            if (error.response?.status === 401) {
+
+                setError(
+                    "Your admin session has expired. Please log in again."
+                );
+
+            } else {
+
+                setError(
+                    error.response?.data?.message ||
+                    "Failed to update gallery status."
+                );
+
+            }
 
         }
 
     };
+
+
+    // ==========================================
+    // LOAD
+    // ==========================================
+
+    useEffect(() => {
+        fetchGallery();
+    }, []);
 
 
     return (
@@ -337,13 +572,19 @@ function GalleryManagement() {
                 {/* ALERTS */}
 
                 {error && (
-                    <div className="alert alert-danger">
+                    <div
+                        className="alert alert-danger"
+                        role="alert"
+                    >
                         {error}
                     </div>
                 )}
 
                 {success && (
-                    <div className="alert alert-success">
+                    <div
+                        className="alert alert-success"
+                        role="alert"
+                    >
                         {success}
                     </div>
                 )}
@@ -356,9 +597,11 @@ function GalleryManagement() {
                     <div className="card-body p-4">
 
                         <h4 className="fw-bold mb-4">
+
                             {editingId
                                 ? "Edit Gallery Item"
                                 : "Add Gallery Item"}
+
                         </h4>
 
 
@@ -368,19 +611,53 @@ function GalleryManagement() {
 
                             <div className="mb-3">
 
-                                <label className="form-label fw-semibold">
+                                <label
+                                    htmlFor="gallery-title"
+                                    className="form-label fw-semibold"
+                                >
                                     Title
                                 </label>
 
                                 <input
+                                    id="gallery-title"
                                     type="text"
                                     name="title"
                                     className="form-control"
                                     value={formData.title}
                                     onChange={handleChange}
                                     placeholder="e.g. Café Interior"
+                                    maxLength="150"
                                     required
                                 />
+
+                            </div>
+
+
+                            {/* MEDIA TYPE */}
+
+                            <div className="mb-3">
+
+                                <label
+                                    htmlFor="gallery-media-type"
+                                    className="form-label fw-semibold"
+                                >
+                                    Media Type
+                                </label>
+
+                                <select
+                                    id="gallery-media-type"
+                                    className="form-select"
+                                    value={formData.media_type}
+                                    onChange={handleMediaTypeChange}
+                                >
+                                    <option value="image">
+                                        Image
+                                    </option>
+
+                                    <option value="video">
+                                        Video
+                                    </option>
+                                </select>
 
                             </div>
 
@@ -389,18 +666,25 @@ function GalleryManagement() {
 
                             <div className="mb-3">
 
-                                <label className="form-label fw-semibold">
-                                    {formData.media_type === "image"
-                                        ? "Choose Image"
-                                        : "Choose Video"}
+                                <label
+                                    htmlFor="gallery-file"
+                                    className="form-label fw-semibold"
+                                >
+                                    {editingId
+                                        ? "Replace Media (Optional)"
+                                        : formData.media_type === "image"
+                                            ? "Choose Image"
+                                            : "Choose Video"}
                                 </label>
 
                                 <input
+                                    ref={fileInputRef}
+                                    id="gallery-file"
                                     type="file"
                                     className="form-control"
                                     accept={
                                         formData.media_type === "image"
-                                            ? "image/jpeg,image/png,image/webp"
+                                            ? "image/jpeg,image/jpg,image/png,image/webp"
                                             : "video/mp4,video/webm,video/quicktime"
                                     }
                                     onChange={handleFileChange}
@@ -408,32 +692,48 @@ function GalleryManagement() {
                                 />
 
                                 <small className="text-muted">
+
                                     {formData.media_type === "image"
-                                        ? "JPG, PNG or WEBP"
-                                        : "MP4, WEBM or MOV"}
+                                        ? "JPG, PNG or WEBP — maximum 100 MB"
+                                        : "MP4, WEBM or MOV — maximum 100 MB"}
+
                                 </small>
 
+                                {formData.file && (
+                                    <div className="small text-success mt-2">
+                                        Selected: {formData.file.name}
+                                    </div>
+                                )}
+
+                                {editingId && !formData.file && (
+                                    <div className="small text-muted mt-2">
+                                        Leave empty to keep the current media.
+                                    </div>
+                                )}
+
                             </div>
-
-
-
 
 
                             {/* DESCRIPTION */}
 
                             <div className="mb-4">
 
-                                <label className="form-label fw-semibold">
+                                <label
+                                    htmlFor="gallery-description"
+                                    className="form-label fw-semibold"
+                                >
                                     Description
                                 </label>
 
                                 <textarea
+                                    id="gallery-description"
                                     name="description"
                                     className="form-control"
                                     rows="3"
                                     value={formData.description}
                                     onChange={handleChange}
                                     placeholder="Describe this photo or video..."
+                                    maxLength="1000"
                                 />
 
                             </div>
@@ -446,27 +746,47 @@ function GalleryManagement() {
                                 <button
                                     type="submit"
                                     className="btn btn-dark rounded-pill px-4"
+                                    disabled={saving}
                                 >
 
-                                    <i className="bi bi-plus-lg me-2"></i>
+                                    {saving ? (
+                                        <>
+                                            <span
+                                                className="spinner-border spinner-border-sm me-2"
+                                                aria-hidden="true"
+                                            ></span>
 
-                                    {editingId
-                                        ? "Update"
-                                        : "Add Gallery Item"}
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i
+                                                className={
+                                                    editingId
+                                                        ? "bi bi-check-lg me-2"
+                                                        : "bi bi-plus-lg me-2"
+                                                }
+                                                aria-hidden="true"
+                                            ></i>
+
+                                            {editingId
+                                                ? "Update"
+                                                : "Add Gallery Item"}
+                                        </>
+                                    )}
 
                                 </button>
 
 
                                 {editingId && (
-
                                     <button
                                         type="button"
                                         className="btn btn-outline-secondary rounded-pill px-4"
                                         onClick={resetForm}
+                                        disabled={saving}
                                     >
                                         Cancel
                                     </button>
-
                                 )}
 
                             </div>
@@ -493,19 +813,38 @@ function GalleryManagement() {
                 </div>
 
 
+                {/* LOADING */}
+
                 {loading ? (
 
-                    <div className="text-center py-5">
-                        <div className="spinner-border"></div>
+                    <div
+                        className="text-center py-5"
+                        aria-live="polite"
+                    >
+
+                        <div
+                            className="spinner-border"
+                            role="status"
+                        >
+                            <span className="visually-hidden">
+                                Loading gallery...
+                            </span>
+                        </div>
+
                     </div>
 
                 ) : items.length === 0 ? (
+
+                    /* EMPTY */
 
                     <div className="card border-0 shadow-sm">
 
                         <div className="card-body text-center py-5">
 
-                            <i className="bi bi-images fs-1"></i>
+                            <i
+                                className="bi bi-images fs-1"
+                                aria-hidden="true"
+                            ></i>
 
                             <h4 className="fw-bold mt-3">
                                 No gallery items
@@ -521,12 +860,20 @@ function GalleryManagement() {
 
                 ) : (
 
+                    /* ITEMS */
+
                     <div className="row g-4">
 
                         {items.map((item) => {
 
                             const active =
                                 Number(item.is_active) === 1;
+
+                            const mediaUrl = item.image
+                                ? `${API_URL}${item.image}`
+                                : item.video
+                                    ? `${API_URL}${item.video}`
+                                    : "";
 
                             return (
 
@@ -537,36 +884,66 @@ function GalleryManagement() {
 
                                     <div className="card border-0 shadow-sm h-100 overflow-hidden">
 
+
                                         {/* MEDIA */}
 
-                                        {item.image && (
+                                        {item.image ? (
 
                                             <img
-                                                src={`https://cafe-lumiere-production.up.railway.app${item.image}`}
-                                                alt={item.title}
+                                                src={mediaUrl}
+                                                alt={item.title || "Gallery image"}
                                                 className="w-100"
+                                                loading="lazy"
                                                 style={{
                                                     height: "220px",
                                                     objectFit: "cover"
                                                 }}
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = "none";
+                                                }}
                                             />
 
-                                        )}
-
-                                        {item.video && (
+                                        ) : item.video ? (
 
                                             <video
-                                                src={`https://cafe-lumiere-production.up.railway.app${item.video}`}
+                                                src={mediaUrl}
                                                 className="w-100"
                                                 style={{
                                                     height: "220px",
                                                     objectFit: "cover"
                                                 }}
                                                 controls
+                                                preload="metadata"
+                                                aria-label={
+                                                    item.title ||
+                                                    "Gallery video"
+                                                }
                                             />
+
+                                        ) : (
+
+                                            <div
+                                                className="d-flex align-items-center justify-content-center bg-light"
+                                                style={{
+                                                    height: "220px"
+                                                }}
+                                            >
+                                                <div className="text-center text-muted">
+                                                    <i
+                                                        className="bi bi-image fs-1"
+                                                        aria-hidden="true"
+                                                    ></i>
+
+                                                    <div className="mt-2">
+                                                        No media
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                         )}
 
+
+                                        {/* CARD BODY */}
 
                                         <div className="card-body p-4">
 
@@ -579,12 +956,17 @@ function GalleryManagement() {
                                                     </h5>
 
                                                     <span className="badge text-bg-secondary">
+
                                                         {item.video
                                                             ? "Video"
-                                                            : "Image"}
+                                                            : item.image
+                                                                ? "Image"
+                                                                : "No Media"}
+
                                                     </span>
 
                                                 </div>
+
 
                                                 <span
                                                     className={
@@ -610,20 +992,28 @@ function GalleryManagement() {
                                             )}
 
 
-                                            <div className="d-flex gap-2 mt-3">
+                                            {/* ACTIONS */}
+
+                                            <div className="d-flex gap-2 mt-3 flex-wrap">
 
                                                 <button
+                                                    type="button"
                                                     className="btn btn-sm btn-outline-dark"
                                                     onClick={() =>
                                                         handleEdit(item)
                                                     }
                                                 >
-                                                    <i className="bi bi-pencil me-1"></i>
+                                                    <i
+                                                        className="bi bi-pencil me-1"
+                                                        aria-hidden="true"
+                                                    ></i>
+
                                                     Edit
                                                 </button>
 
 
                                                 <button
+                                                    type="button"
                                                     className={
                                                         active
                                                             ? "btn btn-sm btn-outline-warning"
@@ -633,19 +1023,30 @@ function GalleryManagement() {
                                                         toggleActive(item)
                                                     }
                                                 >
+
                                                     {active
                                                         ? "Hide"
                                                         : "Show"}
+
                                                 </button>
 
 
                                                 <button
+                                                    type="button"
                                                     className="btn btn-sm btn-outline-danger"
                                                     onClick={() =>
                                                         handleDelete(item.id)
                                                     }
+                                                    aria-label={
+                                                        `Delete ${item.title || "gallery item"} `
+                                                    }
                                                 >
-                                                    <i className="bi bi-trash"></i>
+
+                                                    <i
+                                                        className="bi bi-trash"
+                                                        aria-hidden="true"
+                                                    ></i>
+
                                                 </button>
 
                                             </div>
@@ -668,6 +1069,7 @@ function GalleryManagement() {
 
         </div>
     );
+
 }
 
 export default GalleryManagement;
