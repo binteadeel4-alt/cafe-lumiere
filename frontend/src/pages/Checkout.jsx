@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
+import { API_URL } from "../config";
 
 function Checkout() {
     const {
@@ -55,17 +56,83 @@ function Checkout() {
             ...formData,
             [e.target.name]: e.target.value
         });
+
+        setError("");
+    };
+
+    const validateForm = () => {
+
+        const name = formData.customer_name.trim();
+        const phone = formData.customer_phone.trim();
+        const email = formData.customer_email.trim();
+
+        if (!name) {
+            return "Please enter your full name.";
+        }
+
+        if (name.length < 2) {
+            return "Full name must contain at least 2 characters.";
+        }
+
+        if (name.length > 100) {
+            return "Full name must be 100 characters or less.";
+        }
+
+        const phonePattern = /^[0-9+\-\s()]{7,20}$/;
+
+        if (!phone) {
+            return "Please enter your phone number.";
+        }
+
+        if (!phonePattern.test(phone)) {
+            return "Please enter a valid phone number.";
+        }
+
+        if (email) {
+
+            const emailPattern =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailPattern.test(email)) {
+                return "Please enter a valid email address.";
+            }
+
+            if (email.length > 150) {
+                return "Email must be 150 characters or less.";
+            }
+        }
+
+        if (cart.length === 0) {
+            return "Your cart is empty.";
+        }
+
+        return "";
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        setLoading(true);
+        if (loading) {
+            return;
+        }
+
         setError("");
 
+        const validationError = validateForm();
+
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+
+        setLoading(true);
+
         try {
+
             const orderData = {
-                ...formData,
+                customer_name: formData.customer_name.trim(),
+                customer_phone: formData.customer_phone.trim(),
+                customer_email: formData.customer_email.trim(),
 
                 items: cart.map((item) => ({
                     menu_item_id: item.id,
@@ -74,17 +141,40 @@ function Checkout() {
             };
 
             const response = await axios.post(
-                "https://cafe-lumiere-production.up.railway.app/api/orders",
+                `${API_URL} /api/orders`,
                 orderData
             );
 
             if (response.data.success) {
 
-                const orderId = response.data.order.id;
+                const order = response.data.order;
+
+                const orderDetails = {
+                    id: order.id,
+                    total_amount: order.total_amount,
+                    status: order.status,
+                    customer_name: formData.customer_name.trim(),
+                    customer_phone: formData.customer_phone.trim(),
+                    customer_email: formData.customer_email.trim(),
+
+                    items: cart.map((item) => ({
+                        id: item.id,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: Number(item.price)
+                    }))
+                };
 
                 clearCart();
 
-                navigate(`/order-success/${orderId}`);
+                navigate(
+                    `/ order - success / ${order.id} `,
+                    {
+                        state: {
+                            order: orderDetails
+                        }
+                    }
+                );
             }
 
         } catch (error) {
@@ -93,6 +183,7 @@ function Checkout() {
 
             setError(
                 error.response?.data?.message ||
+                error.message ||
                 "Unable to place your order. Please try again."
             );
 
@@ -121,7 +212,6 @@ function Checkout() {
                     </p>
 
                 </div>
-
 
                 <div className="row g-5">
 
@@ -158,11 +248,11 @@ function Checkout() {
                                             value={formData.customer_name}
                                             onChange={handleChange}
                                             placeholder="Enter your full name"
+                                            maxLength="100"
                                             required
                                         />
 
                                     </div>
-
 
                                     <div className="mb-3">
 
@@ -177,11 +267,11 @@ function Checkout() {
                                             value={formData.customer_phone}
                                             onChange={handleChange}
                                             placeholder="Enter your phone number"
+                                            maxLength="20"
                                             required
                                         />
 
                                     </div>
-
 
                                     <div className="mb-4">
 
@@ -196,10 +286,10 @@ function Checkout() {
                                             value={formData.customer_email}
                                             onChange={handleChange}
                                             placeholder="Enter your email"
+                                            maxLength="150"
                                         />
 
                                     </div>
-
 
                                     <button
                                         type="submit"
@@ -232,7 +322,6 @@ function Checkout() {
 
                     </div>
 
-
                     {/* ORDER SUMMARY */}
 
                     <div className="col-lg-5">
@@ -244,7 +333,6 @@ function Checkout() {
                                 <h4 className="fw-bold mb-4">
                                     Order Summary
                                 </h4>
-
 
                                 {cart.map((item) => (
 
@@ -277,9 +365,7 @@ function Checkout() {
 
                                 ))}
 
-
                                 <hr />
-
 
                                 <div className="d-flex justify-content-between">
 
@@ -308,3 +394,4 @@ function Checkout() {
 }
 
 export default Checkout;
+
