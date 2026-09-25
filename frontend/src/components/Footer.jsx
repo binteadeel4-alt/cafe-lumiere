@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { SOCIAL_LINKS } from "../config";
+import { CAFE_INFO, SOCIAL_LINKS } from "../config";
 
 function Footer() {
     return (
@@ -10,7 +10,7 @@ function Footer() {
 
                     <div className="col-lg-5">
                         <h3 className="fw-bold">
-                            Café Lumière
+                            {CAFE_INFO.name}
                         </h3>
 
                         <p className="footer-text">
@@ -106,7 +106,7 @@ function Footer() {
                 <hr className="my-4" />
 
                 <p className="text-muted mb-0 small">
-                    © 2026 Café Lumière. All rights reserved.
+                    © 2026 {CAFE_INFO.name}. All rights reserved.
                 </p>
 
             </div>

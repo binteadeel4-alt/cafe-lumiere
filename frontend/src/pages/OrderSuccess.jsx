@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import { CAFE_INFO } from "../config";
 
 function OrderSuccess() {
     const { orderId } = useParams();
@@ -28,7 +29,7 @@ function OrderSuccess() {
                                 </h1>
 
                                 <p className="text-muted mb-4">
-                                    Thank you for ordering from Cafe Lumiere.
+                                    Thank you for ordering from {CAFE_INFO.name}.
                                     Your order has been received successfully.
                                 </p>
 

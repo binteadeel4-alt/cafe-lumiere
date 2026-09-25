@@ -11,7 +11,7 @@ function FeaturedMenu() {
         const fetchFeaturedMenu = async () => {
             try {
                 const response = await axios.get(
-                    `${API_URL} /api/menu`
+                    `${API_URL}/api/menu`
                 );
 
                 const featuredItems = (response.data?.items || [])
@@ -99,7 +99,7 @@ function FeaturedMenu() {
                                                 item.image.startsWith("http://") ||
                                                     item.image.startsWith("https://")
                                                     ? item.image
-                                                    : `${API_URL}${item.image} `
+                                                    : `${API_URL}${item.image}`
                                             }
                                             alt={item.name}
                                             className="featured-card-image"

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { CAFE_INFO } from "../config";
 
 function Navbar() {
     const { totalItems } = useCart();
@@ -12,7 +13,7 @@ function Navbar() {
                     className="navbar-brand fw-bold fs-3"
                     to="/"
                 >
-                    Cafe Lumiere
+                    {CAFE_INFO.name}
                 </Link>
 
                 <button

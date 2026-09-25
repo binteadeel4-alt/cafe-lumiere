@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { CAFE_INFO } from "../config";
 
 function VisitSection() {
     return (
@@ -34,7 +35,7 @@ function VisitSection() {
 
                             <p className="mb-4">
                                 <i className="bi bi-telephone me-2"></i>
-                                +965 XXXX XXXX
+                                {CAFE_INFO.phone}
                             </p>
 
                         </div>

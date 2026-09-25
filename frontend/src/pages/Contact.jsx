@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { CAFE_INFO } from "../config";
 
 function Contact() {
     const [formData, setFormData] = useState({
@@ -120,7 +121,7 @@ function Contact() {
                                     </h6>
 
                                     <p className="text-muted mb-0">
-                                        Cafe Lumiere
+                                        {CAFE_INFO.name}
                                     </p>
                                 </div>
 
@@ -139,7 +140,7 @@ function Contact() {
                                     </h6>
 
                                     <p className="text-muted mb-0">
-                                        +965 XXXX XXXX
+                                        {CAFE_INFO.phone}
                                     </p>
                                 </div>
 
@@ -158,7 +159,7 @@ function Contact() {
                                     </h6>
 
                                     <p className="text-muted mb-0">
-                                        hello@cafelumiere.com
+                                        {CAFE_INFO.email}
                                     </p>
                                 </div>
 
