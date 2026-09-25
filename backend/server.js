@@ -19,10 +19,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/images", express.static("images"));
-
+// Static files
+app.use("/images", express.static(path.join(__dirname, "images")));
 app.use("/videos", express.static(path.join(__dirname, "videos")));
 app.use("/gallery", express.static(path.join(__dirname, "gallery")));
+
+// API routes
 app.use("/api/menu", menuRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/auth", authRoutes);
@@ -32,25 +34,28 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/gallery", galleryRoutes);
 
+// API health check
 app.get("/", (req, res) => {
     res.json({
         message: "Cafe Website API is running!"
     });
 });
 
+// Database test
 app.get("/api/test-db", async (req, res) => {
+    let connection;
+
     try {
-        const connection = await db.getConnection();
+        connection = await db.getConnection();
 
         const [result] = await connection.query("SELECT 1");
-
-        connection.release();
 
         res.json({
             success: true,
             message: "MySQL connected successfully!",
             result
         });
+
     } catch (error) {
         console.error("MYSQL ERROR:");
         console.error("Message:", error.message);
@@ -66,13 +71,20 @@ app.get("/api/test-db", async (req, res) => {
             success: false,
             message: "Database connection failed.",
             error: error.message,
-            code: error.code,
+            code: error.code
         });
+
+    } finally {
+        if (connection) {
+            connection.release();
+        }
     }
 });
 
 
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
     console.log(`Server is running http://localhost:${PORT}`);
 });
+
