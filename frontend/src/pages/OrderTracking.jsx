@@ -116,6 +116,7 @@ function OrderTracking() {
                                         </label>
 
                                         <input
+                                            id="order-number"
                                             type="number"
                                             className="form-control"
                                             value={orderId}
@@ -137,6 +138,7 @@ function OrderTracking() {
                                         </label>
 
                                         <input
+                                            id="tracking-phone"
                                             type="tel"
                                             className="form-control"
                                             value={phone}
@@ -151,7 +153,11 @@ function OrderTracking() {
 
 
                                     {error && (
-                                        <div className="alert alert-danger">
+                                        <div
+                                            className="alert alert-danger"
+                                            role="alert"
+                                            aria-live="assertive"
+                                        >
                                             {error}
                                         </div>
                                     )}
@@ -165,13 +171,19 @@ function OrderTracking() {
 
                                         {loading ? (
                                             <>
-                                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                                <span
+                                                    className="spinner-border spinner-border-sm me-2"
+                                                    aria-hidden="true"
+                                                ></span>
                                                 Checking Order...
                                             </>
                                         ) : (
                                             <>
                                                 Track Order
-                                                <i className="bi bi-search ms-2"></i>
+                                                <i
+                                                    className="bi bi-search ms-2"
+                                                    aria-hidden="true"
+                                                ></i>
                                             </>
                                         )}
 
@@ -213,9 +225,9 @@ function OrderTracking() {
                                     </div>
 
 
-                                    <h5 className="fw-bold mb-3">
+                                    <h2 className="fw-bold mb-3 h5">
                                         Order Items
-                                    </h5>
+                                    </h2>
 
 
                                     {order.items.map((item) => (

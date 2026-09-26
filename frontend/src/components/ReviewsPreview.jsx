@@ -70,7 +70,11 @@ function ReviewsPreview() {
 
 
                 {!loading && error && (
-                    <div className="text-center text-muted py-4">
+                    <div
+                        className="text-center text-muted py-4"
+                        role="alert"
+                        aria-live="assertive"
+                    >
                         {error}
                     </div>
                 )}
@@ -97,15 +101,17 @@ function ReviewsPreview() {
                                         className="review-stars mb-3"
                                         aria-label={`${review.rating} out of 5 stars`}
                                     >
-                                        {"★".repeat(
-                                            Math.min(
-                                                5,
-                                                Math.max(
-                                                    0,
-                                                    Number(review.rating) || 0
+                                        <span aria-hidden="true">
+                                            {"★".repeat(
+                                                Math.min(
+                                                    5,
+                                                    Math.max(
+                                                        0,
+                                                        Number(review.rating) || 0
+                                                    )
                                                 )
-                                            )
-                                        )}
+                                            )}
+                                        </span>
                                     </div>
 
                                     <p className="review-comment">

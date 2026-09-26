@@ -38,17 +38,19 @@ const storage = multer.diskStorage({
         }
 
         cb(null, folder);
+
     },
 
     filename: (req, file, cb) => {
 
         const extension =
-            path.extname(file.originalname);
+            path.extname(file.originalname).toLowerCase();
 
         const filename =
             `${Date.now()}-${Math.round(Math.random() * 1E9)}${extension}`;
 
         cb(null, filename);
+
     }
 
 });
@@ -77,15 +79,20 @@ const fileFilter = (req, file, cb) => {
         allowedImages.includes(file.mimetype) ||
         allowedVideos.includes(file.mimetype)
     ) {
+
         cb(null, true);
+
     } else {
+
         cb(
             new Error(
                 "Only JPG, PNG, WEBP, MP4, WEBM and MOV files are allowed."
             ),
             false
         );
+
     }
+
 };
 
 
@@ -96,17 +103,78 @@ const upload = multer({
     fileFilter,
 
     limits: {
-        fileSize: 100 * 1024 * 1024
+        fileSize: 100 * 1024 * 1024,
+        files: 1
     }
 
 });
 
 
 // ==========================================
+// UPLOAD ERROR HANDLER
+// ==========================================
+
+const handleUpload = (req, res, next) => {
+
+    upload.single("file")(req, res, (error) => {
+
+        if (error) {
+
+            console.error(
+                "GALLERY UPLOAD ERROR:",
+                error
+            );
+
+            if (error instanceof multer.MulterError) {
+
+                if (error.code === "LIMIT_FILE_SIZE") {
+
+                    return res.status(400).json({
+                        success: false,
+                        message: "File size must be 100 MB or smaller."
+                    });
+
+                }
+
+                if (error.code === "LIMIT_FILE_COUNT") {
+
+                    return res.status(400).json({
+                        success: false,
+                        message: "Only one image or video can be uploaded."
+                    });
+
+                }
+
+                return res.status(400).json({
+                    success: false,
+                    message: "Gallery upload failed."
+                });
+
+            }
+
+            return res.status(400).json({
+                success: false,
+                message: error.message ||
+                    "Invalid gallery file."
+            });
+
+        }
+
+        next();
+
+    });
+
+};
+
+
+// ==========================================
 // PUBLIC
 // ==========================================
 
-router.get("/", getGallery);
+router.get(
+    "/",
+    getGallery
+);
 
 
 // ==========================================
@@ -123,7 +191,7 @@ router.get(
 router.post(
     "/",
     protect,
-    upload.single("file"),
+    handleUpload,
     createGallery
 );
 
@@ -131,7 +199,7 @@ router.post(
 router.put(
     "/:id",
     protect,
-    upload.single("file"),
+    handleUpload,
     updateGallery
 );
 
@@ -144,3 +212,4 @@ router.delete(
 
 
 module.exports = router;
+

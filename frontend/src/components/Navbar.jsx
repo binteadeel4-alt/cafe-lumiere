@@ -21,8 +21,14 @@ function Navbar() {
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#navbarNav"
+                    aria-controls="navbarNav"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
                 >
-                    <span className="navbar-toggler-icon"></span>
+                    <span
+                        className="navbar-toggler-icon"
+                        aria-hidden="true"
+                    ></span>
                 </button>
 
                 <div
@@ -81,11 +87,18 @@ function Navbar() {
                                 className="nav-link"
                                 to="/cart"
                             >
-                                <i className="bi bi-cart3 me-1"></i>
+                                <i
+                                    className="bi bi-cart3 me-1"
+                                    aria-hidden="true"
+                                ></i>
+
                                 Cart
 
                                 {totalItems > 0 && (
-                                    <span className="badge bg-dark ms-1">
+                                    <span
+                                        className="badge bg-dark ms-1"
+                                        aria-label={`${totalItems} items in cart`}
+                                    >
                                         {totalItems}
                                     </span>
                                 )}
@@ -110,3 +123,4 @@ function Navbar() {
 }
 
 export default Navbar;
+

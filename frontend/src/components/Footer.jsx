@@ -72,7 +72,10 @@ function Footer() {
                                     rel="noopener noreferrer"
                                     aria-label="Instagram"
                                 >
-                                    <i className="bi bi-instagram"></i>
+                                    <i
+                                        className="bi bi-instagram"
+                                        aria-hidden="true"
+                                    ></i>
                                 </a>
                             )}
 
@@ -83,7 +86,10 @@ function Footer() {
                                     rel="noopener noreferrer"
                                     aria-label="Facebook"
                                 >
-                                    <i className="bi bi-facebook"></i>
+                                    <i
+                                        className="bi bi-facebook"
+                                        aria-hidden="true"
+                                    ></i>
                                 </a>
                             )}
 
@@ -94,7 +100,10 @@ function Footer() {
                                     rel="noopener noreferrer"
                                     aria-label="TikTok"
                                 >
-                                    <i className="bi bi-tiktok"></i>
+                                    <i
+                                        className="bi bi-tiktok"
+                                        aria-hidden="true"
+                                    ></i>
                                 </a>
                             )}
 
@@ -106,7 +115,7 @@ function Footer() {
                 <hr className="my-4" />
 
                 <p className="text-muted mb-0 small">
-                    © 2026 {CAFE_INFO.name}. All rights reserved.
+                    © {new Date().getFullYear()} {CAFE_INFO.name}. All rights reserved.
                 </p>
 
             </div>

@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import heroImage from "../assets/hero.png";
 
@@ -27,7 +26,6 @@ function About() {
                 </div>
             </section>
 
-
             {/* OUR STORY */}
 
             <section className="py-5">
@@ -44,12 +42,12 @@ function About() {
                                     src={heroImage}
                                     alt="Inside Café Lumière"
                                     className="img-fluid rounded-4 shadow-sm"
+                                    loading="lazy"
                                 />
 
                             </div>
 
                         </div>
-
 
                         <div className="col-lg-6">
 
@@ -97,7 +95,6 @@ function About() {
 
             </section>
 
-
             {/* VALUES */}
 
             <section className="py-5 bg-light">
@@ -116,7 +113,6 @@ function About() {
 
                     </div>
 
-
                     <div className="row g-4">
 
                         <div className="col-md-4">
@@ -124,11 +120,14 @@ function About() {
                             <div className="card border-0 shadow-sm h-100">
                                 <div className="card-body p-4 text-center">
 
-                                    <i className="bi bi-cup-hot fs-1"></i>
+                                    <i
+                                        className="bi bi-cup-hot fs-1"
+                                        aria-hidden="true"
+                                    ></i>
 
-                                    <h4 className="fw-bold mt-4">
+                                    <h3 className="fw-bold mt-4 h4">
                                         Great Coffee
-                                    </h4>
+                                    </h3>
 
                                     <p className="text-muted mb-0">
                                         We believe a good cup of coffee can
@@ -140,17 +139,19 @@ function About() {
 
                         </div>
 
-
                         <div className="col-md-4">
 
                             <div className="card border-0 shadow-sm h-100">
                                 <div className="card-body p-4 text-center">
 
-                                    <i className="bi bi-heart fs-1"></i>
+                                    <i
+                                        className="bi bi-heart fs-1"
+                                        aria-hidden="true"
+                                    ></i>
 
-                                    <h4 className="fw-bold mt-4">
+                                    <h3 className="fw-bold mt-4 h4">
                                         Warm Hospitality
-                                    </h4>
+                                    </h3>
 
                                     <p className="text-muted mb-0">
                                         Every guest should feel comfortable,
@@ -162,17 +163,19 @@ function About() {
 
                         </div>
 
-
                         <div className="col-md-4">
 
                             <div className="card border-0 shadow-sm h-100">
                                 <div className="card-body p-4 text-center">
 
-                                    <i className="bi bi-stars fs-1"></i>
+                                    <i
+                                        className="bi bi-stars fs-1"
+                                        aria-hidden="true"
+                                    ></i>
 
-                                    <h4 className="fw-bold mt-4">
+                                    <h3 className="fw-bold mt-4 h4">
                                         Quality
-                                    </h4>
+                                    </h3>
 
                                     <p className="text-muted mb-0">
                                         From our drinks to our desserts,
@@ -190,7 +193,6 @@ function About() {
 
             </section>
 
-
             {/* CTA */}
 
             <section className="py-5">
@@ -199,13 +201,17 @@ function About() {
 
                     <div className="bg-dark text-white rounded-4 p-5 text-center">
 
-                        <i className="bi bi-cup-hot fs-1"></i>
+                        <i
+                            className="bi bi-cup-hot fs-1"
+                            aria-hidden="true"
+                        ></i>
 
                         <h2 className="display-6 fw-bold mt-3">
                             Come spend a moment with us.
                         </h2>
 
-                        <p className="text-white-50 mx-auto mb-4"
+                        <p
+                            className="text-white-50 mx-auto mb-4"
                             style={{ maxWidth: "600px" }}
                         >
                             Great coffee, delicious food, and a cozy

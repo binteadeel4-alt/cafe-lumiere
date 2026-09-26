@@ -150,18 +150,18 @@ const createGallery = async (req, res) => {
 
         if (file.mimetype.startsWith("image/")) {
 
-            image = `/ gallery / ${file.filename} `;
+            image = `/gallery/${file.filename}`;
 
         } else if (file.mimetype.startsWith("video/")) {
 
-            video = `/ videos / ${file.filename} `;
+            video = `/videos/${file.filename}`;
 
         } else {
 
             deleteMediaFile(
                 file.mimetype.startsWith("video/")
-                    ? `/ videos / ${file.filename} `
-                    : `/ gallery / ${file.filename} `
+                    ? `/videos/${file.filename}`
+                    : `/gallery/${file.filename}`
             );
 
             return res.status(400).json({
@@ -204,8 +204,8 @@ VALUES(?, ?, ?, ?, 1)
 
             const uploadedPath =
                 req.file.mimetype.startsWith("video/")
-                    ? `/ videos / ${req.file.filename} `
-                    : `/ gallery / ${req.file.filename} `;
+                    ? `/videos/${req.file.filename}`
+                    : `/gallery/${req.file.filename}`;
 
             deleteMediaFile(uploadedPath);
         }
@@ -242,8 +242,8 @@ const updateGallery = async (req, res) => {
 
                 const uploadedPath =
                     req.file.mimetype.startsWith("video/")
-                        ? `/ videos / ${req.file.filename} `
-                        : `/ gallery / ${req.file.filename} `;
+                        ? `/videos/${req.file.filename}`
+                        : `/gallery/${req.file.filename}`;
 
                 deleteMediaFile(uploadedPath);
             }
@@ -274,8 +274,8 @@ id,
 
                 const uploadedPath =
                     req.file.mimetype.startsWith("video/")
-                        ? `/ videos / ${req.file.filename} `
-                        : `/ gallery / ${req.file.filename} `;
+                        ? `/videos/${req.file.filename}`
+                        : `/gallery/${req.file.filename}`;
 
                 deleteMediaFile(uploadedPath);
             }
@@ -300,20 +300,20 @@ id,
 
             if (req.file.mimetype.startsWith("image/")) {
 
-                image = `/ gallery / ${req.file.filename} `;
+                image = `/gallery/${req.file.filename}`;
                 video = null;
 
             } else if (req.file.mimetype.startsWith("video/")) {
 
                 image = null;
-                video = `/ videos / ${req.file.filename} `;
+                video = `/videos/${req.file.filename}`;
 
             } else {
 
                 const uploadedPath =
                     req.file.mimetype.startsWith("video/")
-                        ? `/ videos / ${req.file.filename} `
-                        : `/ gallery / ${req.file.filename} `;
+                        ? `/videos/${req.file.filename}`
+                        : `/gallery/${req.file.filename}`;
 
                 deleteMediaFile(uploadedPath);
 
@@ -380,8 +380,8 @@ title = ?,
 
             const uploadedPath =
                 req.file.mimetype.startsWith("video/")
-                    ? `/ videos / ${req.file.filename} `
-                    : `/ gallery / ${req.file.filename} `;
+                    ? `/videos/${req.file.filename}`
+                    : `/gallery/${req.file.filename}`;
 
             deleteMediaFile(uploadedPath);
         }

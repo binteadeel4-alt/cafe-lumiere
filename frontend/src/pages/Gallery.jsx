@@ -1,14 +1,13 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../config";
 
 function Gallery() {
 
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
 
     useEffect(() => {
 
@@ -17,7 +16,7 @@ function Gallery() {
             try {
 
                 const response = await axios.get(
-                    "https://cafe-lumiere-production.up.railway.app/api/gallery"
+                    `${API_URL} /api/gallery`
                 );
 
                 setItems(response.data.items || []);
@@ -45,7 +44,6 @@ function Gallery() {
         fetchGallery();
 
     }, []);
-
 
     return (
         <main className="gallery-page">
@@ -77,7 +75,6 @@ function Gallery() {
 
             </section>
 
-
             {/* GALLERY */}
 
             <section className="py-5">
@@ -88,14 +85,18 @@ function Gallery() {
 
                     {loading && (
 
-                        <div className="text-center py-5">
+                        <div
+                            className="text-center py-5"
+                            role="status"
+                            aria-live="polite"
+                        >
 
                             <div
                                 className="spinner-border"
-                                role="status"
+                                aria-hidden="true"
                             />
 
-                            <p className="text-muted mt-3">
+                            <p className="text-muted mt-3 mb-0">
                                 Loading gallery...
                             </p>
 
@@ -103,17 +104,19 @@ function Gallery() {
 
                     )}
 
-
                     {/* ERROR */}
 
                     {!loading && error && (
 
-                        <div className="alert alert-danger text-center">
+                        <div
+                            className="alert alert-danger text-center"
+                            role="alert"
+                            aria-live="assertive"
+                        >
                             {error}
                         </div>
 
                     )}
-
 
                     {/* EMPTY */}
 
@@ -123,11 +126,14 @@ function Gallery() {
 
                             <div className="text-center py-5">
 
-                                <i className="bi bi-images fs-1"></i>
+                                <i
+                                    className="bi bi-images fs-1"
+                                    aria-hidden="true"
+                                ></i>
 
-                                <h4 className="fw-bold mt-3">
+                                <h2 className="fw-bold mt-3 h4">
                                     Gallery coming soon
-                                </h4>
+                                </h2>
 
                                 <p className="text-muted">
                                     We're preparing some beautiful
@@ -137,7 +143,6 @@ function Gallery() {
                             </div>
 
                         )}
-
 
                     {/* GALLERY ITEMS */}
 
@@ -161,45 +166,51 @@ function Gallery() {
                                             {item.image && (
 
                                                 <img
-                                                    src={`https://cafe-lumiere-production.up.railway.app${item.image}`}
-                                                    alt={item.title}
+                                                    src={`${API_URL}${item.image} `}
+                                                    alt={
+                                                        item.title
+                                                            ? item.title
+                                                            : "Café Lumière gallery image"
+                                                    }
                                                     className="w-100"
                                                     style={{
                                                         height: "320px",
                                                         objectFit: "cover"
                                                     }}
+                                                    loading="lazy"
                                                 />
 
                                             )}
 
-
                                             {/* VIDEO */}
 
-                                            {
-                                                item.video && (
+                                            {item.video && (
 
-                                                    <video
-                                                        src={`https://cafe-lumiere-production.up.railway.app${item.video}`}
-                                                        className="w-100"
-                                                        style={{
-                                                            height: "320px",
-                                                            objectFit: "cover"
-                                                        }}
-                                                        controls
-                                                        preload="metadata"
-                                                    />
+                                                <video
+                                                    src={`${API_URL}${item.video} `}
+                                                    className="w-100"
+                                                    style={{
+                                                        height: "320px",
+                                                        objectFit: "cover"
+                                                    }}
+                                                    controls
+                                                    preload="metadata"
+                                                    aria-label={
+                                                        item.title
+                                                            ? item.title
+                                                            : "Café Lumière gallery video"
+                                                    }
+                                                />
 
-                                                )
-                                            }
-
+                                            )}
 
                                             {/* INFO */}
 
                                             <div className="card-body p-4">
 
-                                                <h5 className="fw-bold mb-2">
+                                                <h2 className="fw-bold mb-2 h5">
                                                     {item.title}
-                                                </h5>
+                                                </h2>
 
                                                 {item.description && (
 
@@ -211,24 +222,23 @@ function Gallery() {
 
                                             </div>
 
-                                        </div >
+                                        </div>
 
-                                    </div >
+                                    </div>
 
                                 ))}
 
-                            </div >
+                            </div>
 
                         )}
 
-                </div >
+                </div>
 
-            </section >
-
+            </section>
 
             {/* CTA */}
 
-            < section className="py-5 bg-light" >
+            <section className="py-5 bg-light">
 
                 <div className="container text-center py-4">
 
@@ -246,14 +256,18 @@ function Gallery() {
                         className="btn btn-dark rounded-pill px-4"
                     >
                         Explore Menu
-                        <i className="bi bi-arrow-right ms-2"></i>
+
+                        <i
+                            className="bi bi-arrow-right ms-2"
+                            aria-hidden="true"
+                        ></i>
                     </Link>
 
                 </div>
 
-            </section >
+            </section>
 
-        </main >
+        </main>
     );
 }
 

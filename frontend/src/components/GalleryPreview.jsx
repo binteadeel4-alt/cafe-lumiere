@@ -75,7 +75,11 @@ function GalleryPreview() {
 
 
                 {!loading && error && (
-                    <div className="text-center text-muted py-4">
+                    <div
+                        className="text-center text-muted py-4"
+                        role="alert"
+                        aria-live="assertive"
+                    >
                         {error}
                     </div>
                 )}

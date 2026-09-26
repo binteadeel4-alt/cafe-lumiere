@@ -24,17 +24,26 @@ function VisitSection() {
                         <div className="mt-4">
 
                             <p className="mb-2">
-                                <i className="bi bi-geo-alt me-2"></i>
+                                <i
+                                    className="bi bi-geo-alt me-2"
+                                    aria-hidden="true"
+                                ></i>
                                 Kuwait City, Kuwait
                             </p>
 
                             <p className="mb-2">
-                                <i className="bi bi-clock me-2"></i>
+                                <i
+                                    className="bi bi-clock me-2"
+                                    aria-hidden="true"
+                                ></i>
                                 Daily · 8:00 AM – 11:00 PM
                             </p>
 
                             <p className="mb-4">
-                                <i className="bi bi-telephone me-2"></i>
+                                <i
+                                    className="bi bi-telephone me-2"
+                                    aria-hidden="true"
+                                ></i>
                                 {CAFE_INFO.phone}
                             </p>
 
@@ -50,7 +59,10 @@ function VisitSection() {
 
                     <div className="col-lg-5">
                         <div className="location-box">
-                            <i className="bi bi-map display-1"></i>
+                            <i
+                                className="bi bi-map display-1"
+                                aria-hidden="true"
+                            ></i>
 
                             <h4 className="mt-4">
                                 Find us

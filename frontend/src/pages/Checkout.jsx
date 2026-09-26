@@ -1,10 +1,15 @@
 import { useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
+
 import axios from "axios";
+
 import { useCart } from "../context/CartContext";
+
 import { API_URL } from "../config";
 
 function Checkout() {
+
     const {
         cart,
         totalPrice,
@@ -23,12 +28,15 @@ function Checkout() {
     const [error, setError] = useState("");
 
     if (cart.length === 0) {
+
         return (
             <main className="checkout-page">
-
                 <div className="container py-5 text-center">
 
-                    <i className="bi bi-cart-x display-1 text-muted"></i>
+                    <i
+                        className="bi bi-cart-x display-1 text-muted"
+                        aria-hidden="true"
+                    ></i>
 
                     <h1 className="fw-bold mt-4">
                         Your cart is empty
@@ -46,18 +54,20 @@ function Checkout() {
                     </Link>
 
                 </div>
-
             </main>
         );
+
     }
 
     const handleChange = (e) => {
+
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
 
         setError("");
+
     };
 
     const validateForm = () => {
@@ -100,6 +110,7 @@ function Checkout() {
             if (email.length > 150) {
                 return "Email must be 150 characters or less.";
             }
+
         }
 
         if (cart.length === 0) {
@@ -107,9 +118,11 @@ function Checkout() {
         }
 
         return "";
+
     };
 
     const handleSubmit = async (e) => {
+
         e.preventDefault();
 
         if (loading) {
@@ -141,7 +154,7 @@ function Checkout() {
             };
 
             const response = await axios.post(
-                `${API_URL} /api/orders`,
+                `${API_URL}/api/orders`,
                 orderData
             );
 
@@ -153,9 +166,15 @@ function Checkout() {
                     id: order.id,
                     total_amount: order.total_amount,
                     status: order.status,
-                    customer_name: formData.customer_name.trim(),
-                    customer_phone: formData.customer_phone.trim(),
-                    customer_email: formData.customer_email.trim(),
+
+                    customer_name:
+                        formData.customer_name.trim(),
+
+                    customer_phone:
+                        formData.customer_phone.trim(),
+
+                    customer_email:
+                        formData.customer_email.trim(),
 
                     items: cart.map((item) => ({
                         id: item.id,
@@ -168,13 +187,14 @@ function Checkout() {
                 clearCart();
 
                 navigate(
-                    `/ order - success / ${order.id} `,
+                    `/order-success/${order.id}`,
                     {
                         state: {
                             order: orderDetails
                         }
                     }
                 );
+
             }
 
         } catch (error) {
@@ -188,11 +208,15 @@ function Checkout() {
             );
 
         } finally {
+
             setLoading(false);
+
         }
+
     };
 
     return (
+
         <main className="checkout-page">
 
             <div className="container py-5">
@@ -223,12 +247,16 @@ function Checkout() {
 
                             <div className="card-body p-4 p-md-5">
 
-                                <h4 className="fw-bold mb-4">
+                                <h2 className="fw-bold mb-4 h4">
                                     Customer Information
-                                </h4>
+                                </h2>
 
                                 {error && (
-                                    <div className="alert alert-danger">
+                                    <div
+                                        className="alert alert-danger"
+                                        role="alert"
+                                        aria-live="assertive"
+                                    >
                                         {error}
                                     </div>
                                 )}
@@ -237,11 +265,15 @@ function Checkout() {
 
                                     <div className="mb-3">
 
-                                        <label className="form-label">
+                                        <label
+                                            htmlFor="customer-name"
+                                            className="form-label"
+                                        >
                                             Full Name *
                                         </label>
 
                                         <input
+                                            id="customer-name"
                                             type="text"
                                             name="customer_name"
                                             className="form-control"
@@ -256,11 +288,15 @@ function Checkout() {
 
                                     <div className="mb-3">
 
-                                        <label className="form-label">
+                                        <label
+                                            htmlFor="customer-phone"
+                                            className="form-label"
+                                        >
                                             Phone Number *
                                         </label>
 
                                         <input
+                                            id="customer-phone"
                                             type="tel"
                                             name="customer_phone"
                                             className="form-control"
@@ -275,11 +311,15 @@ function Checkout() {
 
                                     <div className="mb-4">
 
-                                        <label className="form-label">
+                                        <label
+                                            htmlFor="customer-email"
+                                            className="form-label"
+                                        >
                                             Email
                                         </label>
 
                                         <input
+                                            id="customer-email"
                                             type="email"
                                             name="customer_email"
                                             className="form-control"
@@ -295,21 +335,31 @@ function Checkout() {
                                         type="submit"
                                         className="btn btn-dark w-100 rounded-pill py-2"
                                         disabled={loading}
+                                        aria-busy={loading}
                                     >
 
                                         {loading ? (
+
                                             <>
                                                 <span
                                                     className="spinner-border spinner-border-sm me-2"
+                                                    aria-hidden="true"
                                                 ></span>
 
                                                 Placing Order...
                                             </>
+
                                         ) : (
+
                                             <>
                                                 Place Order
-                                                <i className="bi bi-check2-circle ms-2"></i>
+
+                                                <i
+                                                    className="bi bi-check2-circle ms-2"
+                                                    aria-hidden="true"
+                                                ></i>
                                             </>
+
                                         )}
 
                                     </button>
@@ -322,6 +372,7 @@ function Checkout() {
 
                     </div>
 
+
                     {/* ORDER SUMMARY */}
 
                     <div className="col-lg-5">
@@ -330,9 +381,9 @@ function Checkout() {
 
                             <div className="card-body p-4">
 
-                                <h4 className="fw-bold mb-4">
+                                <h2 className="fw-bold mb-4 h4">
                                     Order Summary
-                                </h4>
+                                </h2>
 
                                 {cart.map((item) => (
 
@@ -390,8 +441,9 @@ function Checkout() {
             </div>
 
         </main>
+
     );
+
 }
 
 export default Checkout;
-

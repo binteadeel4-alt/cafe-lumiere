@@ -1,5 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 
+import NotFound from "./pages/NotFound";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -154,6 +156,11 @@ function App() {
         <Route
           path="/track-order"
           element={<OrderTracking />}
+        />
+
+        <Route
+          path="*"
+          element={<NotFound />}
         />
 
       </Routes>

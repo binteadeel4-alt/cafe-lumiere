@@ -113,7 +113,10 @@ function FeaturedMenu() {
                                     ) : (
 
                                         <div className="featured-card-image d-flex align-items-center justify-content-center">
-                                            <i className="bi bi-cup-hot fs-1"></i>
+                                            <i
+                                                className="bi bi-cup-hot fs-1"
+                                                aria-hidden="true"
+                                            ></i>
                                         </div>
 
                                     )}

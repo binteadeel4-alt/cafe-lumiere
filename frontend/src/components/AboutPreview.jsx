@@ -14,16 +14,20 @@ function AboutPreview() {
                                 src={heroImage}
                                 alt="Inside Café Lumière"
                                 className="about-image"
+                                loading="lazy"
                             />
                         </div>
                     </div>
+
                     <div className="col-lg-6">
                         <p className="hero-subtitle">
                             OUR STORY
                         </p>
+
                         <h2 className="display-5 fw-bold mb-4">
                             More than just a cup of coffee.
                         </h2>
+
                         <p className="text-muted about-text">
                             Café Lumière was created with one simple idea:
                             create a place where great coffee, delicious
@@ -37,17 +41,20 @@ function AboutPreview() {
                             a seat waiting for you.
                         </p>
 
-                        <Link 
-                        to="/about"
-                        className="btn btn-dark rounded-pill px-4 py-2 mt-2"
+                        <Link
+                            to="/about"
+                            className="btn btn-dark rounded-pill px-4 py-2 mt-2"
                         >
                             Discover Our Story
                         </Link>
                     </div>
+
                 </div>
-                </div>
+
+            </div>
         </section>
     );
 }
 
 export default AboutPreview;
+

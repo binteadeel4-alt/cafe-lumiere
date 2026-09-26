@@ -3,6 +3,7 @@ import axios from "axios";
 
 import MenuCard from "../components/MenuCard";
 import { useCart } from "../context/CartContext";
+import { API_URL } from "../config";
 
 function Menu() {
     const [menuItems, setMenuItems] = useState([]);
@@ -15,13 +16,17 @@ function Menu() {
         const fetchMenu = async () => {
             try {
                 const response = await axios.get(
-                    "https://cafe-lumiere-production.up.railway.app/api/menu"
+                    `${API_URL}/api/menu`
                 );
 
-                setMenuItems(response.data.items);
+                setMenuItems(response.data?.items || []);
             } catch (error) {
-                console.error(error);
-                setError("Unable to load the menu.");
+                console.error("MENU ERROR:", error);
+
+                setError(
+                    error.response?.data?.message ||
+                    "Unable to load the menu."
+                );
             } finally {
                 setLoading(false);
             }
@@ -53,36 +58,81 @@ function Menu() {
             <section className="pb-5">
                 <div className="container">
 
+                    {/* LOADING */}
+
                     {loading && (
                         <div className="text-center py-5">
+
                             <div
                                 className="spinner-border"
                                 role="status"
+                                aria-label="Loading menu"
                             >
                                 <span className="visually-hidden">
-                                    Loading...
+                                    Loading menu...
                                 </span>
                             </div>
+
+                            <p className="text-muted mt-3">
+                                Loading menu...
+                            </p>
+
                         </div>
                     )}
 
-                    {error && (
-                        <div className="alert alert-danger text-center">
+                    {/* ERROR */}
+
+                    {!loading && error && (
+                        <div
+                            className="alert alert-danger text-center"
+                            role="alert"
+                            aria-live="assertive"
+                        >
                             {error}
                         </div>
                     )}
 
-                    {!loading && !error && (
-                        <div className="row">
-                            {menuItems.map((item) => (
-                                <MenuCard
-                                    key={item.id}
-                                    item={item}
-                                    onAddToCart={addToCart}
-                                />
-                            ))}
-                        </div>
-                    )}
+                    {/* EMPTY */}
+
+                    {!loading &&
+                        !error &&
+                        menuItems.length === 0 && (
+                            <div className="text-center py-5">
+
+                                <i
+                                    className="bi bi-cup-hot fs-1"
+                                    aria-hidden="true"
+                                ></i>
+
+                                <h2 className="fw-bold mt-3 h4">
+                                    Menu coming soon
+                                </h2>
+
+                                <p className="text-muted">
+                                    We're preparing something delicious
+                                    for you.
+                                </p>
+
+                            </div>
+                        )}
+
+                    {/* MENU ITEMS */}
+
+                    {!loading &&
+                        !error &&
+                        menuItems.length > 0 && (
+                            <div className="row">
+
+                                {menuItems.map((item) => (
+                                    <MenuCard
+                                        key={item.id}
+                                        item={item}
+                                        onAddToCart={addToCart}
+                                    />
+                                ))}
+
+                            </div>
+                        )}
 
                 </div>
             </section>
@@ -92,3 +142,4 @@ function Menu() {
 }
 
 export default Menu;
+

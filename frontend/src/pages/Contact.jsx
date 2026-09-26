@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { CAFE_INFO } from "../config";
+import { API_URL, CAFE_INFO } from "../config";
 
 function Contact() {
     const [formData, setFormData] = useState({
@@ -31,7 +31,7 @@ function Contact() {
 
         try {
             const response = await axios.post(
-                "https://cafe-lumiere-production.up.railway.app/api/messages",
+                `${API_URL}/api/messages`,
                 formData
             );
 
@@ -50,7 +50,7 @@ function Contact() {
             }
 
         } catch (error) {
-            console.error(error);
+            console.error("CONTACT ERROR:", error);
 
             setError(
                 error.response?.data?.message ||
@@ -85,7 +85,6 @@ function Contact() {
                 </div>
             </section>
 
-
             {/* CONTACT SECTION */}
 
             <section className="pb-5">
@@ -108,11 +107,10 @@ function Contact() {
                                 feel free to reach out.
                             </p>
 
-
                             <div className="d-flex mb-4">
 
                                 <div className="me-3">
-                                    <i className="bi bi-geo-alt fs-3"></i>
+                                    <i className="bi bi-geo-alt fs-3" aria-hidden="true"></i>
                                 </div>
 
                                 <div>
@@ -127,11 +125,10 @@ function Contact() {
 
                             </div>
 
-
                             <div className="d-flex mb-4">
 
                                 <div className="me-3">
-                                    <i className="bi bi-telephone fs-3"></i>
+                                    <i className="bi bi-telephone fs-3" aria-hidden="true"></i>
                                 </div>
 
                                 <div>
@@ -146,11 +143,10 @@ function Contact() {
 
                             </div>
 
-
                             <div className="d-flex mb-4">
 
                                 <div className="me-3">
-                                    <i className="bi bi-envelope fs-3"></i>
+                                    <i className="bi bi-envelope fs-3" aria-hidden="true"></i>
                                 </div>
 
                                 <div>
@@ -167,7 +163,6 @@ function Contact() {
 
                         </div>
 
-
                         {/* FORM */}
 
                         <div className="col-lg-7">
@@ -180,20 +175,25 @@ function Contact() {
                                         Send us a message
                                     </h4>
 
-
                                     {success && (
-                                        <div className="alert alert-success">
+                                        <div
+                                            className="alert alert-success"
+                                            role="alert"
+                                            aria-live="polite"
+                                        >
                                             {success}
                                         </div>
                                     )}
 
-
                                     {error && (
-                                        <div className="alert alert-danger">
+                                        <div
+                                            className="alert alert-danger"
+                                            role="alert"
+                                            aria-live="assertive"
+                                        >
                                             {error}
                                         </div>
                                     )}
-
 
                                     <form onSubmit={handleSubmit}>
 
@@ -206,6 +206,7 @@ function Contact() {
                                                 </label>
 
                                                 <input
+                                                    id="contact-name"
                                                     type="text"
                                                     name="name"
                                                     className="form-control"
@@ -217,7 +218,6 @@ function Contact() {
 
                                             </div>
 
-
                                             <div className="col-md-6 mb-3">
 
                                                 <label className="form-label">
@@ -225,6 +225,7 @@ function Contact() {
                                                 </label>
 
                                                 <input
+                                                    id="contact-email"
                                                     type="email"
                                                     name="email"
                                                     className="form-control"
@@ -238,7 +239,6 @@ function Contact() {
 
                                         </div>
 
-
                                         <div className="mb-3">
 
                                             <label className="form-label">
@@ -246,6 +246,7 @@ function Contact() {
                                             </label>
 
                                             <input
+                                                id="contact-phone"
                                                 type="tel"
                                                 name="phone"
                                                 className="form-control"
@@ -256,7 +257,6 @@ function Contact() {
 
                                         </div>
 
-
                                         <div className="mb-3">
 
                                             <label className="form-label">
@@ -264,6 +264,7 @@ function Contact() {
                                             </label>
 
                                             <input
+                                                id="contact-subject"
                                                 type="text"
                                                 name="subject"
                                                 className="form-control"
@@ -275,7 +276,6 @@ function Contact() {
 
                                         </div>
 
-
                                         <div className="mb-4">
 
                                             <label className="form-label">
@@ -283,6 +283,7 @@ function Contact() {
                                             </label>
 
                                             <textarea
+                                                id="contact-message"
                                                 name="message"
                                                 className="form-control"
                                                 rows="5"
@@ -294,7 +295,6 @@ function Contact() {
 
                                         </div>
 
-
                                         <button
                                             type="submit"
                                             className="btn btn-dark rounded-pill px-4"
@@ -305,13 +305,18 @@ function Contact() {
                                                 <>
                                                     <span
                                                         className="spinner-border spinner-border-sm me-2"
+                                                        role="status"
+                                                        aria-hidden="true"
                                                     ></span>
                                                     Sending...
                                                 </>
                                             ) : (
                                                 <>
                                                     Send Message
-                                                    <i className="bi bi-send ms-2"></i>
+                                                    <i
+                                                        className="bi bi-send ms-2"
+                                                        aria-hidden="true"
+                                                    ></i>
                                                 </>
                                             )}
 
@@ -336,3 +341,4 @@ function Contact() {
 }
 
 export default Contact;
+
