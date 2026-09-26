@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../config";
 
 function Login() {
     const navigate = useNavigate();
@@ -18,7 +19,7 @@ function Login() {
 
         try {
             const response = await axios.post(
-                "https://cafe-lumiere-production.up.railway.app/api/auth/login",
+                `${API_URL}/api/auth/login`,
                 {
                     email,
                     password
@@ -63,7 +64,11 @@ function Login() {
                 </div>
 
                 {error && (
-                    <div className="alert alert-danger">
+                    <div
+                        className="alert alert-danger"
+                        role="alert"
+                        aria-live="assertive"
+                    >
                         {error}
                     </div>
                 )}
@@ -71,11 +76,16 @@ function Login() {
                 <form onSubmit={handleSubmit}>
 
                     <div className="mb-3">
-                        <label className="form-label">
+
+                        <label
+                            htmlFor="admin-email"
+                            className="form-label"
+                        >
                             Email
                         </label>
 
                         <input
+                            id="admin-email"
                             type="email"
                             className="form-control"
                             placeholder="Enter email"
@@ -83,16 +93,23 @@ function Login() {
                             onChange={(e) =>
                                 setEmail(e.target.value)
                             }
+                            autoComplete="email"
                             required
                         />
+
                     </div>
 
                     <div className="mb-4">
-                        <label className="form-label">
+
+                        <label
+                            htmlFor="admin-password"
+                            className="form-label"
+                        >
                             Password
                         </label>
 
                         <input
+                            id="admin-password"
                             type="password"
                             className="form-control"
                             placeholder="Enter your password"
@@ -100,14 +117,17 @@ function Login() {
                             onChange={(e) =>
                                 setPassword(e.target.value)
                             }
+                            autoComplete="current-password"
                             required
                         />
+
                     </div>
 
                     <button
                         type="submit"
                         className="btn btn-dark w-100 py-2"
                         disabled={loading}
+                        aria-busy={loading}
                     >
                         {loading ? "Signing in..." : "Sign In"}
                     </button>

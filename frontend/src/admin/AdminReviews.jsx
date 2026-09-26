@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_URL } from "../config";
 
 function AdminReviews() {
 
@@ -8,15 +9,15 @@ function AdminReviews() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
+    const token = localStorage.getItem("adminToken");
 
     const fetchReviews = async () => {
-
         try {
-
-            const token = localStorage.getItem("adminToken");
+            setLoading(true);
+            setError("");
 
             const response = await axios.get(
-                "https://cafe-lumiere-production.up.railway.app/api/reviews/admin/all",
+                `${API_URL}/api/reviews/admin/all`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -24,38 +25,41 @@ function AdminReviews() {
                 }
             );
 
-            setReviews(response.data.reviews || []);
+            const reviewsData = Array.isArray(response.data)
+                ? response.data
+                : response.data.reviews || [];
 
-        } catch (error) {
+            setReviews(reviewsData);
 
-            console.error(error);
+        } catch (err) {
+
+            console.error(err);
 
             setError(
-                error.response?.data?.message ||
+                err.response?.data?.message ||
                 "Failed to load reviews."
             );
 
+            setReviews([]);
+
         } finally {
-
             setLoading(false);
-
         }
     };
-
 
     useEffect(() => {
         fetchReviews();
     }, []);
 
-
     const approveReview = async (id) => {
 
         try {
 
-            const token = localStorage.getItem("adminToken");
+            setError("");
+            setSuccess("");
 
             await axios.put(
-                `https://cafe-lumiere-production.up.railway.app/api/reviews/${id}/approve`,
+                `${API_URL}/api/reviews/${id}/approve`,
                 {},
                 {
                     headers: {
@@ -64,51 +68,35 @@ function AdminReviews() {
                 }
             );
 
-            setReviews((currentReviews) =>
-                currentReviews.map((review) =>
-                    review.id === id
-                        ? {
-                            ...review,
-                            is_approved: 1
-                        }
-                        : review
-                )
-            );
-
             setSuccess("Review approved successfully.");
 
-            setTimeout(() => {
-                setSuccess("");
-            }, 3000);
+            fetchReviews();
 
-        } catch (error) {
+        } catch (err) {
 
-            console.error(error);
+            console.error(err);
 
             setError(
-                error.response?.data?.message ||
+                err.response?.data?.message ||
                 "Failed to approve review."
             );
+
         }
     };
 
-
     const deleteReview = async (id) => {
 
-        const confirmDelete = window.confirm(
-            "Are you sure you want to delete this review?"
-        );
-
-        if (!confirmDelete) {
+        if (!window.confirm("Are you sure you want to delete this review?")) {
             return;
         }
 
         try {
 
-            const token = localStorage.getItem("adminToken");
+            setError("");
+            setSuccess("");
 
             await axios.delete(
-                `https://cafe-lumiere-production.up.railway.app/api/reviews/${id}`,
+                `${API_URL}/api/reviews/${id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -116,235 +104,228 @@ function AdminReviews() {
                 }
             );
 
-            setReviews((currentReviews) =>
-                currentReviews.filter(
-                    (review) => review.id !== id
-                )
-            );
-
             setSuccess("Review deleted successfully.");
 
-            setTimeout(() => {
-                setSuccess("");
-            }, 3000);
+            fetchReviews();
 
-        } catch (error) {
+        } catch (err) {
 
-            console.error(error);
+            console.error(err);
 
             setError(
-                error.response?.data?.message ||
+                err.response?.data?.message ||
                 "Failed to delete review."
             );
+
         }
     };
 
-
     const renderStars = (rating) => {
 
-        return [...Array(5)].map((_, index) => (
+        const safeRating = Math.min(
+            5,
+            Math.max(
+                0,
+                Number(rating) || 0
+            )
+        );
 
-            <i
-                key={index}
-                className={
-                    index < Number(rating)
-                        ? "bi bi-star-fill me-1"
-                        : "bi bi-star me-1"
-                }
-            ></i>
-
-        ));
+        return (
+            <>
+                {[...Array(5)].map((_, index) => (
+                    <i
+                        key={index}
+                        className={
+                            index < safeRating
+                                ? "bi bi-star-fill"
+                                : "bi bi-star"
+                        }
+                        aria-hidden="true"
+                    ></i>
+                ))}
+            </>
+        );
     };
 
-
-    const pendingCount = reviews.filter(
-        (review) => Number(review.is_approved) === 0
-    ).length;
-
-
     return (
-        <div className="admin-dashboard">
+        <div className="container py-5">
 
-            <div className="container py-5">
+            <div className="d-flex justify-content-between align-items-center mb-4">
 
-                <div className="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 className="fw-bold mb-1">
+                        Reviews
+                    </h1>
 
-                    <div>
+                    <p className="text-muted mb-0">
+                        Manage customer reviews and approvals.
+                    </p>
+                </div>
 
-                        <h1 className="fw-bold mb-1">
-                            Reviews
-                        </h1>
+            </div>
 
-                        <p className="text-muted mb-0">
-                            Manage customer reviews.
-                        </p>
+            {error && (
+                <div
+                    className="alert alert-danger"
+                    role="alert"
+                    aria-live="assertive"
+                >
+                    {error}
+                </div>
+            )}
 
-                    </div>
+            {success && (
+                <div
+                    className="alert alert-success"
+                    role="status"
+                    aria-live="polite"
+                >
+                    {success}
+                </div>
+            )}
 
-                    <span className="badge text-bg-warning fs-6">
-                        {pendingCount} Pending
-                    </span>
+            {loading ? (
+
+                <div
+                    className="text-center py-5"
+                    role="status"
+                    aria-live="polite"
+                >
+                    <div
+                        className="spinner-border text-dark"
+                        aria-hidden="true"
+                    ></div>
+
+                    <p className="text-muted mt-3 mb-0">
+                        Loading reviews...
+                    </p>
+                </div>
+
+            ) : reviews.length === 0 ? (
+
+                <div className="text-center py-5">
+
+                    <i
+                        className="bi bi-chat-heart fs-1 text-muted"
+                        aria-hidden="true"
+                    ></i>
+
+                    <h2 className="h4 mt-3">
+                        No reviews found
+                    </h2>
+
+                    <p className="text-muted">
+                        Customer reviews will appear here.
+                    </p>
 
                 </div>
 
+            ) : (
 
-                {error && (
-                    <div className="alert alert-danger">
-                        {error}
-                    </div>
-                )}
+                <div className="row g-4">
 
+                    {reviews.map((review) => (
 
-                {success && (
-                    <div className="alert alert-success">
-                        {success}
-                    </div>
-                )}
+                        <div
+                            className="col-md-6 col-lg-4"
+                            key={review.id}
+                        >
 
+                            <div className="card h-100 border-0 shadow-sm">
 
-                {loading ? (
+                                <div className="card-body p-4">
 
-                    <div className="text-center py-5">
+                                    <div className="d-flex justify-content-between align-items-start mb-3">
 
-                        <div className="spinner-border"></div>
+                                        <div>
 
-                    </div>
+                                            <h2 className="h5 fw-bold mb-1">
+                                                {review.customer_name}
+                                            </h2>
 
-                ) : reviews.length === 0 ? (
-
-                    <div className="card border-0 shadow-sm">
-
-                        <div className="card-body text-center py-5">
-
-                            <i className="bi bi-chat-heart fs-1"></i>
-
-                            <h4 className="fw-bold mt-3">
-                                No reviews
-                            </h4>
-
-                            <p className="text-muted mb-0">
-                                Customer reviews will appear here.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                ) : (
-
-                    <div className="row g-4">
-
-                        {reviews.map((review) => {
-
-                            const approved =
-                                Number(review.is_approved) === 1;
-
-                            return (
-
-                                <div
-                                    className="col-12"
-                                    key={review.id}
-                                >
-
-                                    <div className="card border-0 shadow-sm">
-
-                                        <div className="card-body p-4">
-
-                                            <div className="d-flex justify-content-between align-items-start">
-
-                                                <div>
-
-                                                    <div className="d-flex align-items-center gap-2 mb-2">
-
-                                                        <h5 className="fw-bold mb-0">
-                                                            {review.customer_name}
-                                                        </h5>
-
-                                                        {approved ? (
-
-                                                            <span className="badge text-bg-success">
-                                                                Approved
-                                                            </span>
-
-                                                        ) : (
-
-                                                            <span className="badge text-bg-warning">
-                                                                Pending
-                                                            </span>
-
-                                                        )}
-
-                                                    </div>
-
-                                                    <div className="mb-2">
-                                                        {renderStars(review.rating)}
-                                                    </div>
-
-                                                    <small className="text-muted">
-                                                        {new Date(
-                                                            review.created_at
-                                                        ).toLocaleString()}
-                                                    </small>
-
-                                                </div>
-
-
-                                                <div className="d-flex gap-2">
-
-                                                    {!approved && (
-
-                                                        <button
-                                                            className="btn btn-sm btn-outline-success"
-                                                            onClick={() =>
-                                                                approveReview(
-                                                                    review.id
-                                                                )
-                                                            }
-                                                        >
-                                                            <i className="bi bi-check2 me-1"></i>
-                                                            Approve
-                                                        </button>
-
-                                                    )}
-
-                                                    <button
-                                                        className="btn btn-sm btn-outline-danger"
-                                                        onClick={() =>
-                                                            deleteReview(
-                                                                review.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <i className="bi bi-trash me-1"></i>
-                                                        Delete
-                                                    </button>
-
-                                                </div>
-
-                                            </div>
-
-
-                                            <div className="bg-light rounded p-3 mt-4">
-
-                                                {review.comment}
-
-                                            </div>
+                                            <small className="text-muted">
+                                                {new Date(
+                                                    review.created_at
+                                                ).toLocaleDateString()}
+                                            </small>
 
                                         </div>
+
+                                        {review.is_approved ? (
+
+                                            <span className="badge bg-success">
+                                                Approved
+                                            </span>
+
+                                        ) : (
+
+                                            <span className="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+
+                                        )}
+
+                                    </div>
+
+                                    <div
+                                        className="mb-3"
+                                        role="img"
+                                        aria-label={`${review.rating} out of 5 stars`}
+                                    >
+                                        <span aria-hidden="true">
+                                            {renderStars(review.rating)}
+                                        </span>
+                                    </div>
+
+                                    <p className="text-muted mb-4">
+                                        {review.comment}
+                                    </p>
+
+                                    <div className="d-flex gap-2">
+
+                                        {!review.is_approved && (
+                                            <button
+                                                type="button"
+                                                className="btn btn-dark btn-sm rounded-pill flex-grow-1"
+                                                onClick={() =>
+                                                    approveReview(review.id)
+                                                }
+                                            >
+                                                <i
+                                                    className="bi bi-check-circle me-1"
+                                                    aria-hidden="true"
+                                                ></i>
+                                                Approve
+                                            </button>
+                                        )}
+
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-danger btn-sm rounded-pill"
+                                            onClick={() =>
+                                                deleteReview(review.id)
+                                            }
+                                            aria-label={`Delete review by ${review.customer_name}`}
+                                        >
+                                            <i
+                                                className="bi bi-trash"
+                                                aria-hidden="true"
+                                            ></i>
+                                        </button>
 
                                     </div>
 
                                 </div>
 
-                            );
+                            </div>
 
-                        })}
+                        </div>
 
-                    </div>
+                    ))}
 
-                )}
+                </div>
 
-            </div>
+            )}
 
         </div>
     );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_URL } from "../config";
 
 function Messages() {
     const [messages, setMessages] = useState([]);
@@ -12,7 +13,7 @@ function Messages() {
             const token = localStorage.getItem("adminToken");
 
             const response = await axios.get(
-                "https://cafe-lumiere-production.up.railway.app/api/messages",
+                `${API_URL}/api/messages`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -46,7 +47,7 @@ function Messages() {
             const token = localStorage.getItem("adminToken");
 
             await axios.put(
-                `https://cafe-lumiere-production.up.railway.app/api/messages/${id}/read`,
+                `${API_URL}/api/messages/${id}/read`,
                 {},
                 {
                     headers: {
@@ -96,7 +97,7 @@ function Messages() {
             const token = localStorage.getItem("adminToken");
 
             await axios.delete(
-                `https://cafe-lumiere-production.up.railway.app/api/messages/${id}`,
+                `${API_URL}/api/messages/${id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -157,14 +158,22 @@ function Messages() {
 
 
                 {error && (
-                    <div className="alert alert-danger">
+                    <div
+                        className="alert alert-danger"
+                        role="alert"
+                        aria-live="assertive"
+                    >
                         {error}
                     </div>
                 )}
 
 
                 {success && (
-                    <div className="alert alert-success">
+                    <div
+                        className="alert alert-success"
+                        role="status"
+                        aria-live="polite"
+                    >
                         {success}
                     </div>
                 )}
@@ -172,8 +181,19 @@ function Messages() {
 
                 {loading ? (
 
-                    <div className="text-center py-5">
-                        <div className="spinner-border"></div>
+                    <div
+                        className="text-center py-5"
+                        role="status"
+                        aria-live="polite"
+                    >
+                        <div
+                            className="spinner-border"
+                            aria-hidden="true"
+                        ></div>
+
+                        <p className="text-muted mt-3 mb-0">
+                            Loading messages...
+                        </p>
                     </div>
 
                 ) : messages.length === 0 ? (
@@ -182,11 +202,14 @@ function Messages() {
 
                         <div className="card-body text-center py-5">
 
-                            <i className="bi bi-envelope-open fs-1"></i>
+                            <i
+                                className="bi bi-envelope-open fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h4 className="mt-3">
+                            <h2 className="h4 mt-3">
                                 No messages
-                            </h4>
+                            </h2>
 
                             <p className="text-muted mb-0">
                                 Customer messages will appear here.
@@ -222,10 +245,10 @@ function Messages() {
 
                                                 <div className="d-flex align-items-center gap-2">
 
-                                                    <h5 className="fw-bold mb-1">
+                                                    <h2 className="h5 fw-bold mb-1">
                                                         {message.subject ||
                                                             "No subject"}
-                                                    </h5>
+                                                    </h2>
 
                                                     {Number(
                                                         message.is_read
@@ -251,6 +274,7 @@ function Messages() {
                                                     message.is_read
                                                 ) === 0 && (
                                                         <button
+                                                            type="button"
                                                             className="btn btn-sm btn-outline-success"
                                                             onClick={() =>
                                                                 markAsRead(
@@ -258,12 +282,16 @@ function Messages() {
                                                                 )
                                                             }
                                                         >
-                                                            <i className="bi bi-check2 me-1"></i>
+                                                            <i
+                                                                className="bi bi-check2 me-1"
+                                                                aria-hidden="true"
+                                                            ></i>
                                                             Mark Read
                                                         </button>
                                                     )}
 
                                                 <button
+                                                    type="button"
                                                     className="btn btn-sm btn-outline-danger"
                                                     onClick={() =>
                                                         deleteMessage(
@@ -271,7 +299,10 @@ function Messages() {
                                                         )
                                                     }
                                                 >
-                                                    <i className="bi bi-trash me-1"></i>
+                                                    <i
+                                                        className="bi bi-trash me-1"
+                                                        aria-hidden="true"
+                                                    ></i>
                                                     Delete
                                                 </button>
 
@@ -284,23 +315,32 @@ function Messages() {
 
                                             <div className="col-md-4">
 
-                                                <h6 className="fw-bold">
+                                                <h3 className="h6 fw-bold">
                                                     Customer
-                                                </h6>
+                                                </h3>
 
                                                 <p className="mb-1">
-                                                    <i className="bi bi-person me-2"></i>
+                                                    <i
+                                                        className="bi bi-person me-2"
+                                                        aria-hidden="true"
+                                                    ></i>
                                                     {message.name}
                                                 </p>
 
                                                 <p className="mb-1 text-muted">
-                                                    <i className="bi bi-envelope me-2"></i>
+                                                    <i
+                                                        className="bi bi-envelope me-2"
+                                                        aria-hidden="true"
+                                                    ></i>
                                                     {message.email}
                                                 </p>
 
                                                 {message.phone && (
                                                     <p className="mb-1 text-muted">
-                                                        <i className="bi bi-telephone me-2"></i>
+                                                        <i
+                                                            className="bi bi-telephone me-2"
+                                                            aria-hidden="true"
+                                                        ></i>
                                                         {message.phone}
                                                     </p>
                                                 )}
@@ -310,9 +350,9 @@ function Messages() {
 
                                             <div className="col-md-8">
 
-                                                <h6 className="fw-bold">
+                                                <h3 className="h6 fw-bold">
                                                     Message
-                                                </h6>
+                                                </h3>
 
                                                 <div className="bg-light rounded p-3">
                                                     {message.message}

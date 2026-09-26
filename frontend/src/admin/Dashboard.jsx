@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../config";
 
 function Dashboard() {
     const user = JSON.parse(
@@ -27,7 +28,7 @@ function Dashboard() {
                 const token = localStorage.getItem("adminToken");
 
                 const response = await axios.get(
-                    "https://cafe-lumiere-production.up.railway.app/api/dashboard/stats",
+                    `${API_URL}/api/dashboard/stats`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
@@ -50,8 +51,6 @@ function Dashboard() {
         fetchStats();
     }, []);
 
-
-
     return (
         <div className="admin-dashboard">
 
@@ -61,7 +60,7 @@ function Dashboard() {
 
                 <div className="d-flex justify-content-between align-items-center mb-5">
 
-                    <div className="mb-5">
+                    <div>
                         <h1 className="fw-bold">
                             Dashboard
                         </h1>
@@ -71,16 +70,14 @@ function Dashboard() {
                         </p>
                     </div>
 
-
-
                 </div>
 
 
                 {/* MENU STATISTICS */}
 
-                <h4 className="fw-bold mb-3">
+                <h2 className="fw-bold mb-3">
                     Menu Overview
-                </h4>
+                </h2>
 
                 <div className="row g-4 mb-5">
 
@@ -90,17 +87,20 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-cup-hot fs-1"></i>
+                            <i
+                                className="bi bi-cup-hot fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Total Menu Items
-                            </h6>
+                            </h3>
 
-                            <h2 className="fw-bold">
+                            <h4 className="fw-bold">
                                 {loading
                                     ? "..."
                                     : stats.totalMenuItems}
-                            </h2>
+                            </h4>
 
                             <Link
                                 to="/admin/menu"
@@ -120,17 +120,20 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-check-circle fs-1"></i>
+                            <i
+                                className="bi bi-check-circle fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Available Items
-                            </h6>
+                            </h3>
 
-                            <h2 className="fw-bold">
+                            <h4 className="fw-bold">
                                 {loading
                                     ? "..."
                                     : stats.availableItems}
-                            </h2>
+                            </h4>
 
                             <p className="text-muted mb-0">
                                 Currently available
@@ -147,17 +150,20 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-grid fs-1"></i>
+                            <i
+                                className="bi bi-grid fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Categories
-                            </h6>
+                            </h3>
 
-                            <h2 className="fw-bold">
+                            <h4 className="fw-bold">
                                 {loading
                                     ? "..."
                                     : stats.totalCategories}
-                            </h2>
+                            </h4>
 
                             <p className="text-muted mb-0">
                                 Menu categories
@@ -172,9 +178,9 @@ function Dashboard() {
 
                 {/* ORDER STATISTICS */}
 
-                <h4 className="fw-bold mb-3">
+                <h2 className="fw-bold mb-3">
                     Order Overview
-                </h4>
+                </h2>
 
                 <div className="row g-4 mb-5">
 
@@ -184,17 +190,20 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-bag-check fs-1"></i>
+                            <i
+                                className="bi bi-bag-check fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Total Orders
-                            </h6>
+                            </h3>
 
-                            <h2 className="fw-bold">
+                            <h4 className="fw-bold">
                                 {loading
                                     ? "..."
                                     : stats.totalOrders}
-                            </h2>
+                            </h4>
 
                             <Link
                                 to="/admin/orders"
@@ -214,17 +223,20 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-hourglass-split fs-1"></i>
+                            <i
+                                className="bi bi-hourglass-split fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Pending Orders
-                            </h6>
+                            </h3>
 
-                            <h2 className="fw-bold">
+                            <h4 className="fw-bold">
                                 {loading
                                     ? "..."
                                     : stats.pendingOrders}
-                            </h2>
+                            </h4>
 
                             <p className="text-muted mb-0">
                                 Awaiting confirmation
@@ -241,17 +253,20 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-fire fs-1"></i>
+                            <i
+                                className="bi bi-fire fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Preparing
-                            </h6>
+                            </h3>
 
-                            <h2 className="fw-bold">
+                            <h4 className="fw-bold">
                                 {loading
                                     ? "..."
                                     : stats.preparingOrders}
-                            </h2>
+                            </h4>
 
                             <p className="text-muted mb-0">
                                 Currently preparing
@@ -268,17 +283,20 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-check2-all fs-1"></i>
+                            <i
+                                className="bi bi-check2-all fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Completed
-                            </h6>
+                            </h3>
 
-                            <h2 className="fw-bold">
+                            <h4 className="fw-bold">
                                 {loading
                                     ? "..."
                                     : stats.completedOrders}
-                            </h2>
+                            </h4>
 
                             <p className="text-muted mb-0">
                                 Successfully completed
@@ -295,17 +313,20 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-envelope fs-1"></i>
+                            <i
+                                className="bi bi-envelope fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Unread Messages
-                            </h6>
+                            </h3>
 
-                            <h2 className="fw-bold">
+                            <h4 className="fw-bold">
                                 {loading
                                     ? "..."
                                     : stats.unreadMessages}
-                            </h2>
+                            </h4>
 
                             <Link
                                 to="/admin/messages"
@@ -331,20 +352,23 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-cash-stack fs-1"></i>
+                            <i
+                                className="bi bi-cash-stack fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Total Sales
-                            </h6>
+                            </h3>
 
-                            <h2 className="fw-bold">
+                            <h4 className="fw-bold">
                                 KD{" "}
                                 {loading
                                     ? "..."
                                     : Number(
                                         stats.totalSales
                                     ).toFixed(3)}
-                            </h2>
+                            </h4>
 
                             <p className="text-muted mb-0">
                                 From completed orders
@@ -361,11 +385,14 @@ function Dashboard() {
 
                         <div className="admin-stat-card">
 
-                            <i className="bi bi-arrow-up-right-circle fs-1"></i>
+                            <i
+                                className="bi bi-arrow-up-right-circle fs-1"
+                                aria-hidden="true"
+                            ></i>
 
-                            <h6 className="text-muted mt-3">
+                            <h3 className="h6 text-muted mt-3">
                                 Order Management
-                            </h6>
+                            </h3>
 
                             <p className="text-muted">
                                 View customer orders and
@@ -388,9 +415,9 @@ function Dashboard() {
 
                 {/* QUICK LINKS */}
 
-                <h4 className="fw-bold mb-3">
+                <h2 className="fw-bold mb-3">
                     Quick Actions
-                </h4>
+                </h2>
 
                 <div className="row g-4">
 
@@ -405,11 +432,14 @@ function Dashboard() {
 
                             <div className="admin-stat-card">
 
-                                <i className="bi bi-pencil-square fs-1"></i>
+                                <i
+                                    className="bi bi-pencil-square fs-1"
+                                    aria-hidden="true"
+                                ></i>
 
-                                <h4 className="mt-3">
+                                <h3 className="h4 mt-3">
                                     Manage Menu
-                                </h4>
+                                </h3>
 
                                 <p className="text-muted mb-0">
                                     Add, edit or remove menu items.
@@ -433,11 +463,14 @@ function Dashboard() {
 
                             <div className="admin-stat-card">
 
-                                <i className="bi bi-bag fs-1"></i>
+                                <i
+                                    className="bi bi-bag fs-1"
+                                    aria-hidden="true"
+                                ></i>
 
-                                <h4 className="mt-3">
+                                <h3 className="h4 mt-3">
                                     Manage Orders
-                                </h4>
+                                </h3>
 
                                 <p className="text-muted mb-0">
                                     Track and update customer orders.
@@ -461,11 +494,14 @@ function Dashboard() {
 
                             <div className="admin-stat-card">
 
-                                <i className="bi bi-envelope fs-1"></i>
+                                <i
+                                    className="bi bi-envelope fs-1"
+                                    aria-hidden="true"
+                                ></i>
 
-                                <h4 className="mt-3">
+                                <h3 className="h4 mt-3">
                                     Messages
-                                </h4>
+                                </h3>
 
                                 <p className="text-muted mb-0">
                                     View customer messages.
