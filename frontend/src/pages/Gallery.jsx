@@ -16,7 +16,7 @@ function Gallery() {
             try {
 
                 const response = await axios.get(
-                    `${API_URL} /api/gallery`
+                    `${API_URL}/api/gallery`
                 );
 
                 setItems(response.data.items || []);
@@ -166,7 +166,7 @@ function Gallery() {
                                             {item.image && (
 
                                                 <img
-                                                    src={`${API_URL}${item.image} `}
+                                                    src={`${API_URL}${item.image}`}
                                                     alt={
                                                         item.title
                                                             ? item.title
@@ -187,7 +187,7 @@ function Gallery() {
                                             {item.video && (
 
                                                 <video
-                                                    src={`${API_URL}${item.video} `}
+                                                    src={`${API_URL}${item.video}`}
                                                     className="w-100"
                                                     style={{
                                                         height: "320px",
