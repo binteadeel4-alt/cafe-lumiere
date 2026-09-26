@@ -5,21 +5,21 @@ const db = require("../config/db");
 const getMenuItems = async (req, res) => {
     try {
         const [items] = await db.query(`
-            SELECT
-                menu_items.id,
-                menu_items.name,
-                menu_items.description,
-                menu_items.price,
-                menu_items.image,
-                menu_items.is_available,
-                menu_items.is_featured,
-                categories.name AS category
+SELECT
+menu_items.id,
+    menu_items.name,
+    menu_items.description,
+    menu_items.price,
+    menu_items.image,
+    menu_items.is_available,
+    menu_items.is_featured,
+    categories.name AS category
             FROM menu_items
             INNER JOIN categories
                 ON menu_items.category_id = categories.id
             WHERE menu_items.is_available = TRUE
             ORDER BY categories.name, menu_items.name
-        `);
+    `);
 
         res.json({
             success: true,
@@ -41,21 +41,21 @@ const getMenuItems = async (req, res) => {
 const getAllMenuItems = async (req, res) => {
     try {
         const [items] = await db.query(`
-            SELECT
-                menu_items.id,
-                menu_items.name,
-                menu_items.description,
-                menu_items.price,
-                menu_items.image,
-                menu_items.is_available,
-                menu_items.is_featured,
-                menu_items.category_id,
-                categories.name AS category
+SELECT
+menu_items.id,
+    menu_items.name,
+    menu_items.description,
+    menu_items.price,
+    menu_items.image,
+    menu_items.is_available,
+    menu_items.is_featured,
+    menu_items.category_id,
+    categories.name AS category
             FROM menu_items
             INNER JOIN categories
                 ON menu_items.category_id = categories.id
             ORDER BY menu_items.id DESC
-        `);
+    `);
 
         res.json({
             success: true,
@@ -81,7 +81,6 @@ const createMenuItem = async (req, res) => {
             name,
             description,
             price,
-            image,
             is_featured
         } = req.body;
 
@@ -92,26 +91,30 @@ const createMenuItem = async (req, res) => {
             });
         }
 
+        const image = req.file
+            ? `/images/${req.file.filename}`
+            : null;
+
         const featuredValue =
             Number(is_featured) === 1 ? 1 : 0;
 
         const [result] = await db.query(
             `INSERT INTO menu_items
-            (
-                category_id,
-                name,
-                description,
-                price,
-                image,
-                is_featured
-            )
-            VALUES (?, ?, ?, ?, ?, ?)`,
+    (
+        category_id,
+        name,
+        description,
+        price,
+        image,
+        is_featured
+    )
+VALUES(?, ?, ?, ?, ?, ?)`,
             [
                 category_id,
                 name,
                 description || null,
                 price,
-                image || null,
+                image,
                 featuredValue
             ]
         );
@@ -143,7 +146,6 @@ const updateMenuItem = async (req, res) => {
             name,
             description,
             price,
-            image,
             is_available,
             is_featured
         } = req.body;
@@ -161,28 +163,63 @@ const updateMenuItem = async (req, res) => {
         const featuredValue =
             Number(is_featured) === 1 ? 1 : 0;
 
-        await db.query(
-            `UPDATE menu_items
-             SET
-                category_id = ?,
-                name = ?,
-                description = ?,
-                price = ?,
-                image = ?,
-                is_available = ?,
-                is_featured = ?
-             WHERE id = ?`,
-            [
+        let query;
+        let values;
+
+        if (req.file) {
+
+            const image = `/images/${req.file.filename}`;
+
+            query = `
+                UPDATE menu_items
+SET
+category_id = ?,
+    name = ?,
+    description = ?,
+    price = ?,
+    image = ?,
+    is_available = ?,
+    is_featured = ?
+        WHERE id = ?
+            `;
+
+            values = [
                 category_id,
                 name,
                 description || null,
                 price,
-                image || null,
+                image,
                 availableValue,
                 featuredValue,
                 id
-            ]
-        );
+            ];
+
+        } else {
+
+            query = `
+                UPDATE menu_items
+SET
+category_id = ?,
+    name = ?,
+    description = ?,
+    price = ?,
+    is_available = ?,
+    is_featured = ?
+        WHERE id = ?
+            `;
+
+            values = [
+                category_id,
+                name,
+                description || null,
+                price,
+                availableValue,
+                featuredValue,
+                id
+            ];
+        }
+
+        await db.query(query, values);
 
         res.json({
             success: true,
@@ -231,12 +268,12 @@ const getGalleryItems = async (req, res) => {
     try {
         const [items] = await db.query(`
             SELECT
-                menu_items.id,
-                menu_items.name,
-                menu_items.description,
-                menu_items.price,
-                menu_items.image,
-                categories.name AS category
+menu_items.id,
+    menu_items.name,
+    menu_items.description,
+    menu_items.price,
+    menu_items.image,
+    categories.name AS category
             FROM menu_items
             INNER JOIN categories
                 ON menu_items.category_id = categories.id
@@ -244,7 +281,7 @@ const getGalleryItems = async (req, res) => {
               AND menu_items.image IS NOT NULL
               AND menu_items.image != ''
             ORDER BY menu_items.created_at DESC
-        `);
+    `);
 
         res.json({
             success: true,

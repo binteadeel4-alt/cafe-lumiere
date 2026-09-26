@@ -18,7 +18,7 @@ function MenuManagement() {
         name: "",
         description: "",
         price: "",
-        image: "",
+        image: null,
         is_featured: false
     });
 
@@ -28,7 +28,7 @@ function MenuManagement() {
             name: "",
             description: "",
             price: "",
-            image: "",
+            image: null,
             is_featured: false
         });
 
@@ -98,11 +98,16 @@ function MenuManagement() {
     }, []);
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value, type, checked, files } = e.target;
 
         setFormData((previous) => ({
             ...previous,
-            [name]: type === "checkbox" ? checked : value
+            [name]:
+                type === "checkbox"
+                    ? checked
+                    : type === "file"
+                        ? files[0] || null
+                        : value
         }));
     };
 
@@ -115,12 +120,24 @@ function MenuManagement() {
         try {
             const token = localStorage.getItem("adminToken");
 
+            const data = new FormData();
+
+            data.append("category_id", formData.category_id);
+            data.append("name", formData.name);
+            data.append("description", formData.description);
+            data.append("price", formData.price);
+            data.append(
+                "is_featured",
+                formData.is_featured ? 1 : 0
+            );
+
+            if (formData.image) {
+                data.append("image", formData.image);
+            }
+
             await axios.post(
                 `${API_URL}/api/menu`,
-                {
-                    ...formData,
-                    is_featured: formData.is_featured ? 1 : 0
-                },
+                data,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -154,7 +171,7 @@ function MenuManagement() {
             name: item.name,
             description: item.description || "",
             price: item.price,
-            image: item.image || "",
+            image: null,
             is_featured: Number(item.is_featured) === 1
         });
 
@@ -170,13 +187,28 @@ function MenuManagement() {
         try {
             const token = localStorage.getItem("adminToken");
 
+            const data = new FormData();
+
+            data.append("category_id", formData.category_id);
+            data.append("name", formData.name);
+            data.append("description", formData.description);
+            data.append("price", formData.price);
+            data.append(
+                "is_available",
+                editingItem.is_available ? 1 : 0
+            );
+            data.append(
+                "is_featured",
+                formData.is_featured ? 1 : 0
+            );
+
+            if (formData.image) {
+                data.append("image", formData.image);
+            }
+
             await axios.put(
                 `${API_URL}/api/menu/${editingItem.id}`,
-                {
-                    ...formData,
-                    is_available: editingItem.is_available ? 1 : 0,
-                    is_featured: formData.is_featured ? 1 : 0
-                },
+                data,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -255,21 +287,27 @@ function MenuManagement() {
         try {
             const token = localStorage.getItem("adminToken");
 
+            const data = new FormData();
+
+            data.append("category_id", item.category_id);
+            data.append("name", item.name);
+            data.append("description", item.description || "");
+            data.append("price", item.price);
+            data.append(
+                "is_available",
+                newAvailability ? 1 : 0
+            );
+            data.append(
+                "is_featured",
+                Number(item.is_featured) === 1 ||
+                    item.is_featured === true
+                    ? 1
+                    : 0
+            );
+
             await axios.put(
                 `${API_URL}/api/menu/${item.id}`,
-                {
-                    category_id: item.category_id,
-                    name: item.name,
-                    description: item.description,
-                    price: item.price,
-                    image: item.image,
-                    is_available: newAvailability ? 1 : 0,
-                    is_featured:
-                        Number(item.is_featured) === 1 ||
-                        item.is_featured === true
-                            ? 1
-                            : 0
-                },
+                data,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -341,7 +379,7 @@ function MenuManagement() {
                                 name: "",
                                 description: "",
                                 price: "",
-                                image: "",
+                                image: null,
                                 is_featured: false
                             });
                             setShowForm(true);
@@ -486,17 +524,22 @@ function MenuManagement() {
                                     <div className="col-md-6">
 
                                         <label className="form-label">
-                                            Image Path
+                                            Image
                                         </label>
 
                                         <input
-                                            type="text"
+                                            type="file"
                                             name="image"
                                             className="form-control"
-                                            placeholder="/images/latte.jpg"
-                                            value={formData.image}
+                                            accept="image/jpeg,image/png,image/webp,image/jpg"
                                             onChange={handleChange}
                                         />
+
+                                        {editingItem && editingItem.image && (
+                                            <small className="text-muted d-block mt-2">
+                                                Leave empty to keep the current image.
+                                            </small>
+                                        )}
 
                                     </div>
 
