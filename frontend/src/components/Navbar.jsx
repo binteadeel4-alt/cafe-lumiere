@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { CAFE_INFO } from "../config";
@@ -102,6 +103,19 @@ function Navbar() {
                                         {totalItems}
                                     </span>
                                 )}
+                            </Link>
+                        </li>
+
+                        <li className="nav-item">
+                            <Link
+                                className="nav-link"
+                                to="/track-order"
+                            >
+                                <i
+                                    className="bi bi-receipt me-1"
+                                    aria-hidden="true"
+                                ></i>
+                                Track Order
                             </Link>
                         </li>
 
